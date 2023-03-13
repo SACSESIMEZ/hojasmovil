@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="dd">
+        <item>Seleccione un opción</item>
+        <item>80 GB</item>
+        <item>320 GB</item>
+        <item>500 GB</item>
+        <item>1 TB</item>
+        <item>2 TB</item>
+    </string-array>
+</resources>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="ram">
+        <item>Seleccione un opción</item>
+        <item>1 GB</item>
+        <item>2 GB</item>
+        <item>4 GB</item>
+        <item>8 GB</item>
+        <item>12 GB</item>
+        <item>16 GB</item>
+    </string-array>
+</resources>

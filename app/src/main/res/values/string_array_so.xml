@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="so">
+        <item>Seleccione un opción</item>
+        <item>Windows XP</item>
+        <item>Windows Vista</item>
+        <item>Windows 7 x32</item>
+        <item>Windows 7 x64</item>
+        <item>Windows 8 x32</item>
+        <item>Windows 8 x64</item>
+        <item>Windows 8.1 x32</item>
+        <item>Windows 8.1 x64</item>
+        <item>Windows 10 x32</item>
+        <item>Windows 10 x64</item>
+        <item>Windows 11</item>
+    </string-array>
+</resources>

@@ -1,0 +1,28 @@
+<resources>
+    <string name="app_name">Hojas de Servicio</string>
+    <string name="title_activity_bienvenida">Bienvenida</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="bienvenido">Bienvenido</string>
+    <string name="BtnComenzarBienvenida">Comenzar</string>
+    <string name="hint_nombre">Ingrese su nombre</string>
+    <string name="title_lista_servicios">Lista de Servicios</string>
+    <string name="descripcion_problema">Descripción del problema:</string>
+    <string name="correo_electronico">Correo eléctronico:</string>
+    <string name="quien_reporta">Quien reporta:</string>
+    <string name="hint_luis">Luis</string>
+    <string name="hint_correo_electronico">scanass@ipn.mx</string>
+    <string name="hint_descripcion">Equipo sin internet...</string>
+    <string name="btn_crear">Crear</string>
+    <string name="txtv_lugar">Lugar:</string>
+    <string name="title_abrir_servicio">Abrir Servicio</string>
+    <string name="title_captura">Captura</string>
+    <string name="atiendes_a_un_dispositivo">¿Atiendes a un dispositivo?</string>
+    <string name="modelo">Modelo:</string>
+    <string name="btn_finalizar">Finalizar</string>
+    <string name="txtv_marca">Marca:</string>
+    <string name="imgv_evidencia_2">Evidencia 2</string>
+    <string name="imgv_evidencia_1">Evidencia 1</string>
+    <string name="imgv_evidencia_3">Evidencia 3</string>
+    <string name="btn_tomar_foto">Tomar foto</string>
+</resources>

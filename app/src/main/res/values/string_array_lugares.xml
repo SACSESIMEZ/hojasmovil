@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="lugares">
+        <item>Seleccione un opción</item>
+        <item>ACTIVIDADES DEPORTIVAS</item>
+        <item>ACUSTICA</item>
+        <item>ALMACEN</item>
+        <item>ANEXO 1</item>
+        <item>ANEXO 4</item>
+        <item>ANEXO 5</item>
+        <item>ARCHIVO</item>
+        <item>BECAS</item>
+        <item>BIBLIOTECA</item>
+        <item>BIBLIOTECA SEPI</item>
+        <item>BIOMECÁNICA</item>
+        <item>CAPITAL HUMANO</item>
+        <item>CELEX</item>
+        <item>CGET</item>
+        <item>CIRCUITOS</item>
+        <item>COMPUTACIÓN ELÉCTRICA</item>
+        <item>COMPUTACIÓN ICE</item>
+        <item>COMUNICACIONES ICE</item>
+        <item>CONTROL ESCOLAR SEPI</item>
+        <item>CONTROL ICA</item>
+        <item>CONTROL ICE</item>
+        <item>COORDINACIÓN DE MECÁNICA</item>
+        <item>COORDINACIÓN DE TELECOMUNICACIONES Z</item>
+        <item>COORDINACIÓN SEPI ELECTRICA</item>
+        <item>COORDINACIÓN SEPI ELECTRÓNICA</item>
+        <item>COORDINACIÓN SEPI SISTEMAS</item>
+        <item>COORDINACIÓN SEPI TELECOMUNICACIONES  PESADOS</item>
+        <item>COSECOVI</item>
+        <item>CUBICULO EDIFICIO 3</item>
+        <item>CUBICULOS EDIFICIO 2</item>
+        <item>CUBICULOS EDIFICIO 4</item>
+        <item>CUBILULO ANEXO 1</item>
+        <item>DECANO</item>
+        <item>DEPTO. DE MANTENIMIENT Y SERVICIOS</item>
+        <item>DEPTO. EXTENSIÓN Y APOYOS EDUCATIVOS</item>
+        <item>DEPTO. FORMACIÓN CIENTIFICA BÁSICA</item>
+        <item>DIFUSIÓN CULTURAL</item>
+        <item>DIRECCIÓN</item>
+        <item>EDITORIAL</item>
+        <item>ELECTROMAGNETISMO</item>
+        <item>ELECTRÓNICA ICE Z2</item>
+        <item>ELECTROTECNIA</item>
+        <item>ESIME RADIO</item>
+        <item>EVALUACIÓN Y SEGUIMIENTO ACADÉMICO</item>
+        <item>FÍSICA ICE</item>
+        <item>FÍSICA IE</item>
+        <item>GESTIÓN ESCOLAR</item>
+        <item>HORARIOS</item>
+        <item>INOOVACIÓN EDUCATIVA</item>
+        <item>JEFATURA  ICE</item>
+        <item>JEFATURA DE SPI</item>
+        <item>JEFATURA ICA</item>
+        <item>JEFATURA IE</item>
+        <item>JEFATURA ISISA</item>
+        <item>JURIDICO</item>
+        <item>LABINTHAP</item>
+        <item>LABORATORIO DE ICA PESADOS 1</item>
+        <item>LABORATORIOS DE ANÁLISIS Y SISTEMAS</item>
+        <item>LABORATORIOS DE ELECTRONICA PESADOS 1</item>
+        <item>LABORATORIOS DE ICE 4001-4004, 4011-4013, 5001-5004</item>
+        <item>LABORATORIOS DE POTENCIA</item>
+        <item>LABORATORIOS ICA 3001, 3002, 3003</item>
+        <item>LABORATORIOS IE 2001, 2002, 2003</item>
+        <item>LABORATORIOS ISISA 2004, 3004</item>
+        <item>LABORATORIOS PESADOS 1 ICA</item>
+        <item>LANTA</item>
+        <item>PAGADURIA</item>
+        <item>PROTECCIÓN CIVIL</item>
+        <item>RECURSOS FINANCIEROS</item>
+        <item>RECURSOS MATERIALES</item>
+        <item>RELACIONES PÚBLICAS</item>
+        <item>ROBOTICA</item>
+        <item>SERVICIO MEDICO</item>
+        <item>SERVICIO SOCIAL</item>
+        <item>SERVICIOS ESTUDIANTILES</item>
+        <item>SINDICATO DOCENTE</item>
+        <item>SINDICATO PAEE</item>
+        <item>SUB. DE SERVICIOS EDUCATIVOS E INTEGRACIÓN SOCIAL</item>
+        <item>SUBDIRECCIÓN ACADÉMICA</item>
+        <item>SUBDIRECCIÓN ADMINSTRATIVA</item>
+        <item>TITULACIÓN</item>
+        <item>TUTORIAS</item>
+        <item>UNIDAD DE INFORMÁTICA</item>
+        <item>UPIS</item>
+        <item>UTE</item>
+        <item>VISITAS PROFESIONALES</item>
+        <item>OTRO</item>
+    </string-array>
+</resources>
