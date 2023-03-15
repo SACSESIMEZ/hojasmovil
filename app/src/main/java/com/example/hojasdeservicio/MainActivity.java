@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
         _btnCrearServicio.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(getApplicationContext(), Captura.class);
+                Intent intent = new Intent(getApplicationContext(), Firma.class);
                 startActivity(intent);
             }
         });
