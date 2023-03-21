@@ -6,10 +6,12 @@ import androidx.constraintlayout.widget.ConstraintSet;
 
 import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.text.format.DateFormat;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -18,6 +20,10 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 
 public class AbrirServicio extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
@@ -78,25 +84,36 @@ public class AbrirServicio extends AppCompatActivity implements AdapterView.OnIt
 
         _dbHelper = new DataBase(this);
 
-
-
         _btnCrear.setOnClickListener(view -> {
             try {
+                int idLugar = 0;
                 boolean bandera = !String.valueOf(_edtTPersona.getText()).equals("") && !String.valueOf(_edtTMDescripcion.getText()).equals("") && (_itemSpinnerSeleccionado != 0);
                 if(_edtTOtro.getVisibility() == View.VISIBLE){
                     bandera = bandera && !String.valueOf(_edtTOtro.getText()).equals("");
+                    _lugarSeleccionado = String.valueOf(_edtTOtro.getText());
+                    insertDB("lugar", _lugarSeleccionado.toUpperCase(), "lugares");
+                    Cursor c = selectDB("SELECT id_lugar FROM lugares WHERE lugar = ?", new String[]{_lugarSeleccionado.toUpperCase()});
+                    c.moveToNext();
+                    idLugar = c.getInt(0);
+                } else{
+                    idLugar = _itemSpinnerSeleccionado + 1;
                 }
                 if(bandera){
                     _db = _dbHelper.getWritableDatabase();
+                    ContentValues cv = new ContentValues();
                     if(_db != null){
-                        ContentValues cv = new ContentValues();
-                        if(_edtTOtro.getVisibility() == View.VISIBLE){
-                            lugar = String.valueOf(_edtTOtro.getText());
-                        } else{
-                            lugar = _lugarSeleccionado;
-                        }
-                        cv.put("id_lugar", _itemSpinnerSeleccionado);
+                        cv.put("persona_reporta", String.valueOf(_edtTPersona.getText()));
+                        cv.put("correo_electronico", String.valueOf(_edtTCorreo.getText()));
+                        cv.put("descripcion", String.valueOf(_edtTMDescripcion.getText()));
+                        Calendar cal = Calendar.getInstance();
+                        Date date = new Date(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH));
+                        String fecha = DateFormat.format("yyyy-MM-dd", date).toString();
+                        cv.put("fecha_ini", fecha);
+                        cv.put("id_lugar", idLugar);
+
+                        _db.insert("servicios", null, cv);
                     }
+
                     Intent intent = new Intent(this, Captura.class);
                     startActivity(intent);
                     finish();
@@ -123,5 +140,42 @@ public class AbrirServicio extends AppCompatActivity implements AdapterView.OnIt
     @Override
     public void onNothingSelected(AdapterView<?> adapterView) {
 
+    }
+
+    private Cursor selectDB(String query, String[] valores){
+        Cursor c = _db.rawQuery(query, valores);
+        return c;
+    }
+
+    private void insertDB(String columna, String valor, String tabla){
+        _db = _dbHelper.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        if(_db != null){
+            cv.put(columna, valor);
+        }
+        _db.insert(tabla, null, cv);
+        cv.clear();
+    }
+
+    private void insertDB(String columna, int valor, String tabla){
+        _db = _dbHelper.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        if(_db != null){
+            cv.put(columna, valor);
+        }
+        _db.insert(tabla, null, cv);
+        cv.clear();
+    }
+
+    private void insertDB(String columna, String[] valores, String tabla){
+        _db = _dbHelper.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        if(_db != null){
+            for(String valor : valores){
+                cv.put(columna, valor);
+            }
+        }
+        _db.insert(tabla, null, cv);
+        cv.clear();
     }
 }

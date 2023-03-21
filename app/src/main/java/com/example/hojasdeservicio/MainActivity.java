@@ -27,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
     private TableLayout _tblLListaS;
     private SQLiteDatabase _db;
     private final String _queryServicios = "SELECT lugares.lugar from servicios INNER JOIN lugares ON servicios.id_lugar = lugares.id_lugar";
-    private final String _prueba = "SELECT lugar from lugares";
+    //private final String _prueba = "SELECT lugar from lugares";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,14 +42,31 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        _tblLListaS.removeAllViews();
+        SharedPreferences sp = getSharedPreferences("HojasServicio", Context.MODE_PRIVATE);
+        _nombre = sp.getString("Nombre", "");
+
+        if(_nombre == null || _nombre.equalsIgnoreCase("")){
+            Intent intent = new Intent(this, Bienvenida.class);
+            startActivity(intent);
+            finish();
+        }
 
         DataBase dbHelper = new DataBase(getApplicationContext());
         _db = dbHelper.getReadableDatabase();
+
         if(_db != null){
-            Cursor c = _db.rawQuery(_prueba, null);
+            Cursor c = _db.rawQuery(_queryServicios, null);
+
             try{
                 if(c != null){
                     while(c.moveToNext()){
+                        System.out.println("*******************************************");
                         String lugar = c.getString(0);
                         TableRow fila = new TableRow(getApplicationContext());
                         TextView servicio = new TextView(getApplicationContext());
@@ -106,19 +123,6 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
                 }*/
             //}
-        }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        SharedPreferences sp = getSharedPreferences("HojasServicio", Context.MODE_PRIVATE);
-        _nombre = sp.getString("Nombre", "");
-
-        if(_nombre == null || _nombre.equalsIgnoreCase("")){
-            Intent intent = new Intent(this, Bienvenida.class);
-            startActivity(intent);
-            finish();
         }
     }
 }

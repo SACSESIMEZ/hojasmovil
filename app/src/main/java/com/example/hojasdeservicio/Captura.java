@@ -27,7 +27,7 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
     private RadioGroup _rdGTipoDispositivo, _rdGCambs, _rdGRed, _rdGIP, _rdGRefacciones;
     private RadioButton _rdBPersonal, _rdBInstitucional, _rdBSCambs, _rdBNCambs, _rdBSRed, _rdBNRed, _rdBIPDinamica, _rdBIPEstatica, _rdBSRefacciones, _rdBNRefacciones;
     private Button _btnCapturarSN, _btnTomarFoto, _btnFinalizar;
-    private ImageView _imgVEvidencia1, _imgVEvidencia2, _imgVEvidencia3;
+    private ImageView _imgVEvidencia1, _imgVEvidencia2, _imgVEvidencia3, _imgVFirma;
     private ConstraintLayout _cnsLRAMDD, _cnsLRefacciones, _cnsLCambs, _cnsLRed, _cnsLEvidencia, _cnsLRadioBotonesInstitucional, _cnsLRadioBotonesIP;
     private int _itemSpinnerSeleccionado;
 
@@ -224,6 +224,8 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
 
         _imgVEvidencia3 = findViewById(R.id.ImgVEvidencia3);
 
+        _imgVFirma = findViewById(R.id.ImgVFirma);
+
         _btnFinalizar = findViewById(R.id.BtnFinalizar);
 
         ocultarDefault();
@@ -258,6 +260,7 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
         _imgVEvidencia1.setVisibility(View.GONE);
         _imgVEvidencia2.setVisibility(View.GONE);
         _imgVEvidencia3.setVisibility(View.GONE);
+        _imgVFirma.setVisibility(View.GONE);
     }
 
     private void mostrarInformacionDispositivos(){
