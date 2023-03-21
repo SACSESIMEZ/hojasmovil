@@ -1,0 +1,4 @@
+ciclo de vida app:	https://developer.android.com/guide/components/activities/activity-lifecycle?hl=es-419
+insercion sqlite:		https://academiaandroid.com/sqlite-android-creacion-acceso-base-datos-insercion/
+actualizacion sqlite:	https://academiaandroid.com/sqlite-en-app-android-actualizar-eliminar-y-consultar-datos/
+inner join sqlite:	https://www.sqlitetutorial.net/sqlite-inner-join/

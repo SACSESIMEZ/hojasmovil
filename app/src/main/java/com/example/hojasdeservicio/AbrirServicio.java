@@ -4,7 +4,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -25,6 +27,9 @@ public class AbrirServicio extends AppCompatActivity implements AdapterView.OnIt
     private Button _btnCrear;
     private Spinner _spnLugares;
     private int _itemSpinnerSeleccionado;
+    private DataBase _dbHelper;
+    private SQLiteDatabase _db;
+    private String _lugarSeleccionado;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -71,6 +76,9 @@ public class AbrirServicio extends AppCompatActivity implements AdapterView.OnIt
         _spnLugares.setAdapter(adapter);
         _spnLugares.setOnItemSelectedListener(this);
 
+        _dbHelper = new DataBase(this);
+
+
 
         _btnCrear.setOnClickListener(view -> {
             try {
@@ -79,8 +87,19 @@ public class AbrirServicio extends AppCompatActivity implements AdapterView.OnIt
                     bandera = bandera && !String.valueOf(_edtTOtro.getText()).equals("");
                 }
                 if(bandera){
+                    _db = _dbHelper.getWritableDatabase();
+                    if(_db != null){
+                        ContentValues cv = new ContentValues();
+                        if(_edtTOtro.getVisibility() == View.VISIBLE){
+                            lugar = String.valueOf(_edtTOtro.getText());
+                        } else{
+                            lugar = _lugarSeleccionado;
+                        }
+                        cv.put("id_lugar", _itemSpinnerSeleccionado);
+                    }
                     Intent intent = new Intent(this, Captura.class);
                     startActivity(intent);
+                    finish();
                 } else{
                     Toast.makeText(this, "Complete todos los campos.", Toast.LENGTH_LONG).show();
                 }
@@ -94,7 +113,7 @@ public class AbrirServicio extends AppCompatActivity implements AdapterView.OnIt
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
         _itemSpinnerSeleccionado = adapterView.getSelectedItemPosition();
         //String item = String.valueOf(adapterView.getSelectedItem());
-        if(_itemSpinnerSeleccionado == 86){
+        if(_itemSpinnerSeleccionado == 86 || _itemSpinnerSeleccionado == 0){
             _edtTOtro.setVisibility(View.VISIBLE);
         } else {
             _edtTOtro.setVisibility(View.GONE);
