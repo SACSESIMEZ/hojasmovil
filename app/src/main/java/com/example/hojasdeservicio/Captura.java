@@ -3,6 +3,8 @@ package com.example.hojasdeservicio;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -29,12 +31,30 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
     private Button _btnCapturarSN, _btnTomarFoto, _btnFinalizar;
     private ImageView _imgVEvidencia1, _imgVEvidencia2, _imgVEvidencia3, _imgVFirma;
     private ConstraintLayout _cnsLRAMDD, _cnsLRefacciones, _cnsLCambs, _cnsLRed, _cnsLEvidencia, _cnsLRadioBotonesInstitucional, _cnsLRadioBotonesIP;
-    private int _itemSpinnerSeleccionado;
+    private int _itemSpinnerSeleccionado, _idServicio, _idElemento;
+    private SQLiteDatabase _db;
+    private DataBase _dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_captura);
+
+        //Datos de servicio
+
+        _idServicio = getIntent().getIntExtra("idServicio", 0);
+
+        if(_idServicio != 0){
+            if(servicioInventario()){
+                llenarInfoDispositivo();
+
+            }
+        }
+
+        //Conexión DB
+
+        _dbHelper = new DataBase(getApplicationContext());
+
 
         //Todos los spinners
 
@@ -303,5 +323,35 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
     @Override
     public void onNothingSelected(AdapterView<?> adapterView) {
 
+    }
+
+    private boolean servicioInventario() {
+        boolean atiendeDispositivo = false;
+        _db = _dbHelper.getReadableDatabase();
+        if (_db != null) {
+            Cursor c = _db.rawQuery("SELECT id_elemento FROM servicio_inventario WHERE id_servicio = ?", new String[]{_idServicio + ""});
+            if(c != null){
+                while(c.moveToNext()){
+                    _idElemento = c.getInt(0);
+                    atiendeDispositivo = true;
+                }
+            }
+        }
+        return atiendeDispositivo;
+    }
+
+    private void llenarInfoDispositivo(){
+        _db = _dbHelper.getReadableDatabase();
+        if(_db != null){
+            Cursor c = _db.rawQuery("SELECT marca, modelo, num_serie, id_tipo FROM inventario WHERE id_elemento = ?", new String[]{_idElemento + ""});
+            if(c != null){
+                while(c.moveToNext()){
+                    _edtTMarca.setText(c.getString(0));
+                    _edtTModelo.setText(c.getString(1));
+                    _edtTNoSerie.setText(c.getString(2));
+                    _spnDispositivo.setSelection(c.getInt(3));
+                }
+            }
+        }
     }
 }

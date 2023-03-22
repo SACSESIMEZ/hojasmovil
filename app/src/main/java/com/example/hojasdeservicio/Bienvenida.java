@@ -51,6 +51,15 @@ public class Bienvenida extends AppCompatActivity {
                                 cv.clear();
                             }
                         }
+
+                        String[] dispositivos = getResources().getStringArray(R.array.dispositivos);
+                        for(String dispositivo : dispositivos){
+                            if(!dispositivo.equalsIgnoreCase("Seleccione una opción")) {
+                                cv.put("tipo", dispositivo);
+                                db.insert("tipo_elementos", null, cv);
+                                cv.clear();
+                            }
+                        }
                         db.close();
                         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                         startActivity(intent);

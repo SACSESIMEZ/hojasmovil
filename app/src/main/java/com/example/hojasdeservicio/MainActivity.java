@@ -26,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
     private Button _btnCrearServicio;
     private TableLayout _tblLListaS;
     private SQLiteDatabase _db;
-    private final String _queryServicios = "SELECT lugares.lugar from servicios INNER JOIN lugares ON servicios.id_lugar = lugares.id_lugar";
+    private final String _queryServicios = "SELECT lugares.lugar, servicios.fecha_ini from servicios INNER JOIN lugares ON servicios.id_lugar = lugares.id_lugar";
     //private final String _prueba = "SELECT lugar from lugares";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,25 +68,37 @@ public class MainActivity extends AppCompatActivity {
                     while(c.moveToNext()){
                         System.out.println("*******************************************");
                         String lugar = c.getString(0);
+                        String fecha = c.getString(1);
                         TableRow fila = new TableRow(getApplicationContext());
-                        TextView servicio = new TextView(getApplicationContext());
-                        servicio.setOnClickListener(new View.OnClickListener() {
+                        fila.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
                                 Intent intent = new Intent(getApplicationContext(), Captura.class);
+                                //intent.c
                                 startActivity(intent);
                             }
                         });
+                        TextView txtVlugar = new TextView(getApplicationContext());
                         float densidadPixeles = getApplicationContext().getResources().getDisplayMetrics().density;
                         float valorPaddingP = 10*densidadPixeles;
                         float valorHeight = 45*densidadPixeles;
-                        servicio.setPadding(0, (int) valorPaddingP, 0, (int) valorPaddingP);
-                        servicio.setHeight((int) valorHeight);
-                        servicio.setText(lugar);
-                        servicio.setTextSize(18);
-                        servicio.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
-                        servicio.setBackgroundResource(R.drawable.top_bottom_border);
-                        servicio.setTextColor(Color.WHITE);
+                        txtVlugar.setPadding(0, (int) valorPaddingP, 0, (int) valorPaddingP);
+                        txtVlugar.setHeight((int) valorHeight);
+                        txtVlugar.setText(lugar);
+                        txtVlugar.setTextSize(18);
+                        txtVlugar.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
+                        txtVlugar.setBackgroundResource(R.drawable.top_bottom_border);
+                        txtVlugar.setTextColor(Color.WHITE);
+
+                        TextView txtVFecha = new TextView(getApplicationContext());
+                        txtVFecha.setPadding(0, (int) valorPaddingP, (int) valorPaddingP, (int) valorPaddingP);
+                        txtVFecha.setHeight((int) valorHeight);
+                        txtVFecha.setText(fecha);
+                        txtVFecha.setTextSize(18);
+                        txtVFecha.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
+                        txtVFecha.setBackgroundResource(R.drawable.top_bottom_border);
+                        txtVFecha.setTextColor(Color.WHITE);
+
 
                         /*TextView texto = new TextView(getApplicationContext());
                         texto.setPadding(0, (int) valorPaddingP, 0, (int) valorPaddingP);
@@ -99,7 +111,8 @@ public class MainActivity extends AppCompatActivity {
                         fila.addView(texto);
                         */
 
-                        fila.addView(servicio);
+                        fila.addView(txtVFecha);
+                        fila.addView(txtVlugar);
                         _tblLListaS.addView(fila);
                     }
                 }

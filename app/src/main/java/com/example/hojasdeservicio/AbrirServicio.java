@@ -21,8 +21,10 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 public class AbrirServicio extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
@@ -106,7 +108,7 @@ public class AbrirServicio extends AppCompatActivity implements AdapterView.OnIt
                         cv.put("correo_electronico", String.valueOf(_edtTCorreo.getText()));
                         cv.put("descripcion", String.valueOf(_edtTMDescripcion.getText()));
                         Calendar cal = Calendar.getInstance();
-                        Date date = new Date(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH));
+                        Date date = new Date(cal.get(Calendar.YEAR) - 1900, cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH));
                         String fecha = DateFormat.format("yyyy-MM-dd", date).toString();
                         cv.put("fecha_ini", fecha);
                         cv.put("id_lugar", idLugar);
@@ -115,6 +117,9 @@ public class AbrirServicio extends AppCompatActivity implements AdapterView.OnIt
                     }
 
                     Intent intent = new Intent(this, Captura.class);
+
+
+
                     startActivity(intent);
                     finish();
                 } else{
@@ -129,8 +134,10 @@ public class AbrirServicio extends AppCompatActivity implements AdapterView.OnIt
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
         _itemSpinnerSeleccionado = adapterView.getSelectedItemPosition();
+        int max = _spnLugares.getCount();
+        Toast.makeText(this, max + "", Toast.LENGTH_SHORT).show();
         //String item = String.valueOf(adapterView.getSelectedItem());
-        if(_itemSpinnerSeleccionado == 86 || _itemSpinnerSeleccionado == 0){
+        if(_itemSpinnerSeleccionado == 87){
             _edtTOtro.setVisibility(View.VISIBLE);
         } else {
             _edtTOtro.setVisibility(View.GONE);
@@ -177,5 +184,20 @@ public class AbrirServicio extends AppCompatActivity implements AdapterView.OnIt
         }
         _db.insert(tabla, null, cv);
         cv.clear();
+    }
+
+    private void llenarSpinnerLugares(){
+        List<String> listSpinner = new ArrayList<String>();
+        listSpinner.add("Seleccione una opción");
+        Cursor c = selectDB("SELECT lugar from lugares", null);
+        if(c != null){
+            while(c.moveToNext()){
+                listSpinner.add(c.getString(0));
+            }
+            listSpinner.add("OTRO");
+            ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, listSpinner);
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            _spnLugares.setAdapter(adapter);
+        }
     }
 }
