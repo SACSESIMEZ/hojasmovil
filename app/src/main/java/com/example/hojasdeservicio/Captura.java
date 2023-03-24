@@ -3,6 +3,7 @@ package com.example.hojasdeservicio;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -28,7 +29,7 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
     private TextView _txtVMarca, _txtVModelo, _txtVNoSerie, _txtVTieneCambs, _txtVCambs, _txtVIP, _txtVMAC, _txtVRAM, _txtVDD, _txtVSO, _txtVDispositivo1;
     private RadioGroup _rdGTipoDispositivo, _rdGCambs, _rdGRed, _rdGIP, _rdGRefacciones;
     private RadioButton _rdBPersonal, _rdBInstitucional, _rdBSCambs, _rdBNCambs, _rdBSRed, _rdBNRed, _rdBIPDinamica, _rdBIPEstatica, _rdBSRefacciones, _rdBNRefacciones;
-    private Button _btnCapturarSN, _btnTomarFoto, _btnFinalizar;
+    private Button _btnCapturaSN, _btnTomarFoto, _btnFinalizar, _btnGuardar;
     private ImageView _imgVEvidencia1, _imgVEvidencia2, _imgVEvidencia3, _imgVFirma;
     private ConstraintLayout _cnsLRAMDD, _cnsLRefacciones, _cnsLCambs, _cnsLRed, _cnsLEvidencia, _cnsLRadioBotonesInstitucional, _cnsLRadioBotonesIP;
     private int _itemSpinnerSeleccionado, _idServicio, _idElemento;
@@ -47,7 +48,6 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
         if(_idServicio != 0){
             if(servicioInventario()){
                 llenarInfoDispositivo();
-
             }
         }
 
@@ -226,7 +226,7 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
 
         _rdGRefacciones = findViewById(R.id.RdGRefacciones);
 
-        _btnCapturarSN = findViewById(R.id.BtnCapturarSN);
+        _btnCapturaSN = findViewById(R.id.BtnCapturarSN);
 
         _txtVDispositivo1 = findViewById(R.id.TxtVDispositivo1);
 
@@ -247,6 +247,18 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
         _imgVFirma = findViewById(R.id.ImgVFirma);
 
         _btnFinalizar = findViewById(R.id.BtnFinalizar);
+        _btnFinalizar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                _db = _dbHelper.getReadableDatabase();
+                if(_chkBDispositivo.isSelected()){
+
+                }
+            }
+        });
+
+        _btnGuardar = findViewById(R.id.BtnGuardar);
+
 
         ocultarDefault();
     }
@@ -273,7 +285,7 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
         _cnsLRAMDD.setVisibility(View.GONE);
         _txtVSO.setVisibility(View.GONE);
         _cnsLRefacciones.setVisibility(View.GONE);
-        _btnCapturarSN.setVisibility(View.GONE);
+        _btnCapturaSN.setVisibility(View.GONE);
         _txtVDispositivo1.setVisibility(View.GONE);
         _edtTDispositivo1.setVisibility(View.GONE);
         _cnsLEvidencia.setVisibility(View.GONE);
@@ -322,7 +334,6 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
 
     @Override
     public void onNothingSelected(AdapterView<?> adapterView) {
-
     }
 
     private boolean servicioInventario() {
@@ -343,13 +354,60 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
     private void llenarInfoDispositivo(){
         _db = _dbHelper.getReadableDatabase();
         if(_db != null){
-            Cursor c = _db.rawQuery("SELECT marca, modelo, num_serie, id_tipo FROM inventario WHERE id_elemento = ?", new String[]{_idElemento + ""});
+            Cursor c = _db.rawQuery("SELECT marca, modelo, num_serie FROM inventario WHERE id_elemento = ?", new String[]{_idElemento + ""});
             if(c != null){
                 while(c.moveToNext()){
                     _edtTMarca.setText(c.getString(0));
                     _edtTModelo.setText(c.getString(1));
                     _edtTNoSerie.setText(c.getString(2));
-                    _spnDispositivo.setSelection(c.getInt(3));
+                }
+            }
+            
+            c = _db.rawQuery("SELECT cambs, id_equipos FROM equipos_institucionales WHERE id_elemento = ?", new String[]{_idElemento + ""});
+            if(c != null){
+                while(c.moveToNext()){
+                    Integer idDispositivo = c.getInt(1);
+                    if(idDispositivo != null && idDispositivo != 0){
+                        _rdGTipoDispositivo.check(R.id.RdBInstitucional);
+                        if(c.getString(0) != null && !c.getString(0).equalsIgnoreCase("")){
+                            _rdGCambs.check(R.id.RdBSCambs);
+                            _edtTCambs.setText(c.getString(0));
+                        } else{
+                            _rdGCambs.check(R.id.RdBNCambs);
+                        }
+                    } else{
+                        _rdGTipoDispositivo.check(R.id.RdBPersonal);
+                    }
+                }
+            }
+            c = _db.rawQuery("SELECT id_conexion, ip, mac FROM conexiones WHERE id_elemento = ?", new String[]{_idElemento + ""});
+            if(c != null){
+                while (c.moveToNext()){
+                    Integer idConexion = c.getInt(0);
+                    if(idConexion != null && idConexion != 0){
+                        _rdGRed.check(R.id.RdBSRed);
+                        if(c.getString(1) != null & !c.getString(1).equalsIgnoreCase("")){
+                            _rdGIP.check(R.id.RdBIPEstatica);
+                            _edtTIP.setText(c.getString(1));
+                            _edtTMAC.setText(c.getString(2));
+                        } else{
+                            _rdGIP.check(R.id.RdBIPDinamica);
+                        }
+                    } else{
+                        _rdGRed.check(R.id.RdBNRed);
+                    }
+                }
+            }
+
+            c = _db.rawQuery("SELECT id_computadoras, id_ram, id_disco_duro, id_so FROM computadoras WHERE id_elemento = ?", new String[]{_idElemento + ""});
+            if(c != null){
+                while(c.moveToNext()){
+                    Integer idComputadora = c.getInt(0);
+                    if(idComputadora != null && idComputadora != 0){
+                        _spnRAM.setSelection(c.getInt(1));
+                        _spnDD.setSelection(c.getInt(2));
+                        _spnSO.setSelection(c.getInt(3));
+                    }
                 }
             }
         }
