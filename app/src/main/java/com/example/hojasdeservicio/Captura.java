@@ -32,7 +32,7 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
     private Button _btnCapturaSN, _btnTomarFoto, _btnFinalizar, _btnGuardar;
     private ImageView _imgVEvidencia1, _imgVEvidencia2, _imgVEvidencia3, _imgVFirma;
     private ConstraintLayout _cnsLRAMDD, _cnsLRefacciones, _cnsLCambs, _cnsLRed, _cnsLEvidencia, _cnsLRadioBotonesInstitucional, _cnsLRadioBotonesIP;
-    private int _itemSpinnerSeleccionado, _idServicio, _idElemento;
+    private int _itemSpinnerSeleccionado, _idServicio, _idElemento, _idDispositivo, _idTipo;
     private SQLiteDatabase _db;
     private DataBase _dbHelper;
 
@@ -41,20 +41,9 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_captura);
 
-        //Datos de servicio
-
-        _idServicio = getIntent().getIntExtra("idServicio", 0);
-
-        if(_idServicio != 0){
-            if(servicioInventario()){
-                llenarInfoDispositivo();
-            }
-        }
-
         //Conexión DB
 
         _dbHelper = new DataBase(getApplicationContext());
-
 
         //Todos los spinners
 
@@ -247,20 +236,24 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
         _imgVFirma = findViewById(R.id.ImgVFirma);
 
         _btnFinalizar = findViewById(R.id.BtnFinalizar);
-        _btnFinalizar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                _db = _dbHelper.getReadableDatabase();
-                if(_chkBDispositivo.isSelected()){
-
-                }
-            }
-        });
 
         _btnGuardar = findViewById(R.id.BtnGuardar);
 
-
         ocultarDefault();
+
+        //Datos de servicio
+
+        _idServicio = getIntent().getIntExtra("idServicio", 0);
+
+        if(_idServicio != 0){
+            if(servicioInventario()){
+                llenarInfoDispositivo();
+                _chkBDispositivo.setChecked(true);
+                _spnDispositivo.setSelection(_idTipo);
+                mostrarInformacionDispositivos();
+            }
+        }
+
     }
 
     private void ocultarDefault(){
@@ -340,10 +333,12 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
         boolean atiendeDispositivo = false;
         _db = _dbHelper.getReadableDatabase();
         if (_db != null) {
-            Cursor c = _db.rawQuery("SELECT id_elemento FROM servicio_inventario WHERE id_servicio = ?", new String[]{_idServicio + ""});
+            Cursor c = _db.rawQuery("SELECT dispositivos.id_elemento, dispositivos.id_dispositivo, dispositivos.id_tipo FROM servicio_inventario_dispositivos INNER JOIN dispositivos ON dispositivos.id_dispositivo = servicio_inventario_dispositivos.id_dispositivo WHERE num_servicio = ?", new String[]{_idServicio + ""});
             if(c != null){
                 while(c.moveToNext()){
                     _idElemento = c.getInt(0);
+                    _idDispositivo = c.getInt(1);
+                    _idTipo = c.getInt(2);
                     atiendeDispositivo = true;
                 }
             }
@@ -363,7 +358,7 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
                 }
             }
             
-            c = _db.rawQuery("SELECT cambs, id_equipos FROM equipos_institucionales WHERE id_elemento = ?", new String[]{_idElemento + ""});
+            c = _db.rawQuery("SELECT cambs FROM equipos_institucionales WHERE id_dispositivo = ?", new String[]{_idDispositivo + ""});
             if(c != null){
                 while(c.moveToNext()){
                     Integer idDispositivo = c.getInt(1);
@@ -380,7 +375,7 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
                     }
                 }
             }
-            c = _db.rawQuery("SELECT id_conexion, ip, mac FROM conexiones WHERE id_elemento = ?", new String[]{_idElemento + ""});
+            c = _db.rawQuery("SELECT id_conexion, ip, mac FROM conexiones WHERE id_dispositivo = ?", new String[]{_idDispositivo + ""});
             if(c != null){
                 while (c.moveToNext()){
                     Integer idConexion = c.getInt(0);
@@ -399,7 +394,7 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
                 }
             }
 
-            c = _db.rawQuery("SELECT id_computadoras, id_ram, id_disco_duro, id_so FROM computadoras WHERE id_elemento = ?", new String[]{_idElemento + ""});
+            c = _db.rawQuery("SELECT id_computadoras, id_ram, id_disco_duro, id_so FROM computadoras WHERE id_dispositivo = ?", new String[]{_idDispositivo + ""});
             if(c != null){
                 while(c.moveToNext()){
                     Integer idComputadora = c.getInt(0);

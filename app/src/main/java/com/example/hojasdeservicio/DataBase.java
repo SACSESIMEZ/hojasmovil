@@ -15,15 +15,16 @@ public class DataBase extends SQLiteOpenHelper {
     private static final String _tablaTipoElementos = "CREATE TABLE tipo_elementos(id_tipo INTEGER PRIMARY KEY AUTOINCREMENT, tipo TEXT NOT NULL)";
     private static final String _tablaServicios = "CREATE TABLE servicios(num_servicio INTEGER PRIMARY KEY AUTOINCREMENT, id_lugar INTEGER NOT NULL, persona_reporta TEXT NOT NULL, correo_electronico TEXT, descripcion TEXT NOT NULL, fecha_ini TEXT NOT NULL, fecha_fin TEXT, firma BLOB, evidencia_uno BLOB, evidencia_dos BLOB, evidencia_tres BLOB, FOREIGN KEY(id_lugar) REFERENCES lugares(id_lugar) ON DELETE CASCADE)";
     private static final String _tablaInventario = "CREATE TABLE inventario(id_elemento INTEGER PRIMARY KEY AUTOINCREMENT, marca TEXT, modelo TEXT, num_serie TEXT)";
-    private static final String _tablaComputadoras = "CREATE TABLE computadoras(id_computadora INTEGER PRIMARY KEY AUTOINCREMENT, id_elemento INTEGER NOT NULL, id_ram INTEGER NOT NULL, id_disco_duro INTEGER NOT NULL, id_so INTEGER NOT NULL, FOREIGN KEY (id_elemento) REFERENCES inventario(id_elemento) ON DELETE CASCADE, FOREIGN KEY (id_ram) REFERENCES catalogo_ram(id_ram) ON DELETE CASCADE, FOREIGN KEY (id_disco_duro) REFERENCES catalogo_disco_duro(id_disco_duro) ON DELETE CASCADE, FOREIGN KEY (id_so) REFERENCES catalogo_so(id_so) ON DELETE CASCADE)";
-    private static final String _tablaConexiones = "CREATE TABLE conexiones(id_conexion INTEGER PRIMARY KEY AUTOINCREMENT, id_elemento INTEGER NOT NULL, ip TEXT, mac TEXT, FOREIGN KEY (id_elemento) REFERENCES inventario(id_elemento) ON DELETE CASCADE)";
-    private static final String _tablaEquiposInstitucionales = "CREATE TABLE equipos_institucionales(id_equipo INTEGER PRIMARY KEY AUTOINCREMENT, id_elemento INTEGER NOT NULL, cambs TEXT, FOREIGN KEY (id_elemento) REFERENCES inventario(id_elemento) ON DELETE CASCADE)";
-    private static final String _tablaServicioInventario = "CREATE TABLE servicio_inventario(id_servicio_inventario INTEGER PRIMARY KEY AUTOINCREMENT, num_servicio INTEGER NOT NULL, id_elemento INTEGER NOT NULL, FOREIGN KEY (id_elemento) REFERENCES inventario(id_elemento) ON DELETE CASCADE, FOREIGN KEY (num_servicio) REFERENCES servicios(num_servicio) ON DELETE CASCADE)";
+    private static final String _tablaComputadoras = "CREATE TABLE computadoras(id_computadora INTEGER PRIMARY KEY AUTOINCREMENT, id_elemento INTEGER NOT NULL, id_ram INTEGER NOT NULL, id_disco_duro INTEGER NOT NULL, id_so INTEGER NOT NULL, FOREIGN KEY (id_dispositivos) REFERENCES dispositivos(id_dispositivo) ON DELETE CASCADE, FOREIGN KEY (id_ram) REFERENCES catalogo_ram(id_ram) ON DELETE CASCADE, FOREIGN KEY (id_disco_duro) REFERENCES catalogo_disco_duro(id_disco_duro) ON DELETE CASCADE, FOREIGN KEY (id_so) REFERENCES catalogo_so(id_so) ON DELETE CASCADE)";
+    private static final String _tablaConexiones = "CREATE TABLE conexiones(id_conexion INTEGER PRIMARY KEY AUTOINCREMENT, id_dispositivo INTEGER NOT NULL, ip TEXT, mac TEXT, FOREIGN KEY (id_dispositivo) REFERENCES dispositivos(id_dispositivo) ON DELETE CASCADE)";
+    private static final String _tablaEquiposInstitucionales = "CREATE TABLE equipos_institucionales(id_equipo INTEGER PRIMARY KEY AUTOINCREMENT, id_dispositivo INTEGER NOT NULL, cambs TEXT, FOREIGN KEY (id_dispositivo) REFERENCES dispositivos(id_dispositivo) ON DELETE CASCADE)";
+    private static final String _tablaServicioInventarioDispositivos = "CREATE TABLE servicio_inventario_dispositivos(id_servicio_inventario INTEGER PRIMARY KEY AUTOINCREMENT, num_servicio INTEGER NOT NULL, id_dispositivo INTEGER NOT NULL, FOREIGN KEY (id_dispositivo) REFERENCES dispositivos(id_dispositivo) ON DELETE CASCADE, FOREIGN KEY (num_servicio) REFERENCES servicios(num_servicio) ON DELETE CASCADE)";
     private static final String _tablaCatalogoRAM = "CREATE TABLE catalogo_ram(id_ram INTEGER PRIMARY KEY AUTOINCREMENT, ram TEXT NOT NULL)";
     private static final String _tablaCatalogoDD = "CREATE TABLE catalogo_disco_duro(id_disco_duro INTEGER PRIMARY KEY AUTOINCREMENT, disco_duro TEXT NOT NULL)";
     private static final String _tablaCatalogoSO = "CREATE TABLE catalogo_so(id_so INTEGER PRIMARY KEY AUTOINCREMENT, so TEXT NOT NULL)";
     private static final String _tablaDispositivos = "CREATE TABLE dispositivos(id_dispositivo INTEGER PRIMARY KEY AUTOINCREMENT, id_elemento INTEGER, id_tipo INTEGER, FOREIGN KEY (id_elemento) REFERENCES inventario(id_elemento) ON DELETE CASCADE, FOREIGN KEY (id_tipo) REFERENCES tipo_elementos(id_tipo) ON DELETE CASCADE)";
     private static final String _tablaRefacciones = "CREATE TABLE refacciones(id_refaccion INTEGER PRIMARY KEY AUTOINCREMENT, id_elemento INTEGER, descripcion TEXT, FOREIGN KEY (id_elemento) REFERENCES inventario(id_elemento) ON DELETE CASCADE)";
+    private static final String _tablaServicioInventarioRefacciones = "CREATE TABLE servicio_inventario_refacciones(id_servicio_refaccion INTEGER PRIMARY KEY AUTOINCREMENT, num_servicio INTEGER, id_refaccion INTEGER, FOREIGN KEY (num_servicio) REFERENCES servicios(num_servicio) ON DELETE CASCADE, FOREIGN KEY (id_refaccion) REFERENCES refacciones(id_refaccion) ON DELETE CASCADE)";
 
     public DataBase(@Nullable Context context) {
         super(context, _baseDatos, null, _dbVersion);
@@ -38,12 +39,13 @@ public class DataBase extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL(_tablaComputadoras);
         sqLiteDatabase.execSQL(_tablaConexiones);
         sqLiteDatabase.execSQL(_tablaEquiposInstitucionales);
-        sqLiteDatabase.execSQL(_tablaServicioInventario);
+        sqLiteDatabase.execSQL(_tablaServicioInventarioDispositivos);
         sqLiteDatabase.execSQL(_tablaCatalogoRAM);
         sqLiteDatabase.execSQL(_tablaCatalogoDD);
         sqLiteDatabase.execSQL(_tablaCatalogoSO);
         sqLiteDatabase.execSQL(_tablaDispositivos);
         sqLiteDatabase.execSQL(_tablaRefacciones);
+        sqLiteDatabase.execSQL(_tablaServicioInventarioRefacciones);
 
     }
 
