@@ -26,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
     private Button _btnCrearServicio;
     private TableLayout _tblLListaS;
     private SQLiteDatabase _db;
-    private final String _queryServicios = "SELECT lugares.lugar, servicios.fecha_ini from servicios INNER JOIN lugares ON servicios.id_lugar = lugares.id_lugar";
+    private final String _queryServicios = "SELECT lugares.lugar, servicios.fecha_ini, servicios.descripcion_servicio from servicios INNER JOIN lugares ON servicios.id_lugar = lugares.id_lugar";
     //private final String _prueba = "SELECT lugar from lugares";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,11 +69,13 @@ public class MainActivity extends AppCompatActivity {
                         System.out.println("*******************************************");
                         String lugar = c.getString(0);
                         String fecha = c.getString(1);
+                        String descripcion = c.getString(2);
                         TableRow fila = new TableRow(getApplicationContext());
                         fila.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
                                 Intent intent = new Intent(getApplicationContext(), Captura.class);
+                                intent.putExtra("descripcion", descripcion);
                                 //intent.c
                                 startActivity(intent);
                             }

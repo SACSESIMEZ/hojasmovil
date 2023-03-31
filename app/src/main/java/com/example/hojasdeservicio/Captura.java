@@ -238,12 +238,19 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
         _btnFinalizar = findViewById(R.id.BtnFinalizar);
 
         _btnGuardar = findViewById(R.id.BtnGuardar);
+        _btnGuardar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
 
         ocultarDefault();
 
         //Datos de servicio
 
         _idServicio = getIntent().getIntExtra("idServicio", 0);
+        String descripcion = getIntent().getStringExtra("descripcion");
 
         if(_idServicio != 0){
             if(servicioInventario()){
@@ -251,6 +258,9 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
                 _chkBDispositivo.setChecked(true);
                 _spnDispositivo.setSelection(_idTipo);
                 mostrarInformacionDispositivos();
+            }
+            if(!descripcion.equalsIgnoreCase("") && descripcion != null){
+                _edtTMDescripcionServicio.setText(descripcion);
             }
         }
 
