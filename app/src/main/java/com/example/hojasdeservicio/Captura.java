@@ -241,7 +241,7 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
         _btnGuardar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                guardarCambiosServicio();
             }
         });
 
@@ -415,6 +415,23 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
                     }
                 }
             }
+        }
+    }
+
+    private void guardarCambiosServicio(){
+        _db = _dbHelper.getWritableDatabase();
+        if(_db != null){
+            ContentValues cv = new ContentValues();
+            if(_spnDispositivo.getVisibility() == View.VISIBLE){
+                cv.put("id_lugar",_itemSpinnerSeleccionado);
+                _db.update("servicios", cv, "num_servicio = ?", new String[]{_idServicio + ""});
+                cv.clear();
+                cv.put("marca", String.valueOf(_edtTMarca.getText()));
+                cv.put("modelo", String.valueOf(_edtTModelo.getText()));
+                cv.put("num_serie", String.valueOf(_edtTNoSerie.getText()));
+
+            }
+
         }
     }
 }
