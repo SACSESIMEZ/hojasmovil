@@ -101,6 +101,7 @@ public class AbrirServicio extends AppCompatActivity implements AdapterView.OnIt
                     idLugar = _itemSpinnerSeleccionado + 1;
                 }
                 if(bandera){
+                    long id = 0;
                     _db = _dbHelper.getWritableDatabase();
                     ContentValues cv = new ContentValues();
                     if(_db != null){
@@ -113,12 +114,10 @@ public class AbrirServicio extends AppCompatActivity implements AdapterView.OnIt
                         cv.put("fecha_ini", fecha);
                         cv.put("id_lugar", idLugar);
 
-                        _db.insert("servicios", null, cv);
+                        id = _db.insert("servicios", null, cv);
                     }
 
                     Intent intent = new Intent(this, Captura.class);
-
-
 
                     startActivity(intent);
                     finish();

@@ -41,6 +41,11 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_captura);
 
+        _idServicio = 0;
+        _idElemento = 0;
+        _idDispositivo = 0;
+        _idTipo = 0;
+
         //Conexión DB
 
         _dbHelper = new DataBase(getApplicationContext());
@@ -262,6 +267,8 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
             if(!descripcion.equalsIgnoreCase("") && descripcion != null){
                 _edtTMDescripcionServicio.setText(descripcion);
             }
+        } else{
+
         }
 
     }
@@ -419,19 +426,47 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
     }
 
     private void guardarCambiosServicio(){
+        guardarTipoDispositivo();
+        guardarInfoDispositivo();
+        guardarCambs();
+    }
+
+    private void guardarTipoDispositivo(){
+        _db = _dbHelper.getWritableDatabase();
+        if(_db != null) {
+            ContentValues cv = new ContentValues();
+            cv.put("id_tipo", _itemSpinnerSeleccionado);
+            try{
+                _db.update("dispositivos", cv, "id_dispositivos = ?", new String[]{_idDispositivo + ""});
+            } catch (Exception e){
+
+            }
+            cv.clear();
+        }
+    }
+
+    private void guardarInfoDispositivo(){
+        _db = _dbHelper.getWritableDatabase();
+        if(_db != null){
+            ContentValues cv=new ContentValues();
+            cv.put("marca", String.valueOf(_edtTMarca.getText()));
+            cv.put("modelo", String.valueOf(_edtTModelo.getText()));
+            cv.put("num_serie", String.valueOf(_edtTNoSerie.getText()));
+            _db.update("inventario", cv, "id_elemento = ?", new String[]{_idElemento + ""});
+            cv.clear();
+        }
+    }
+
+    private void guardarCambs(){
         _db = _dbHelper.getWritableDatabase();
         if(_db != null){
             ContentValues cv = new ContentValues();
-            if(_spnDispositivo.getVisibility() == View.VISIBLE){
-                cv.put("id_lugar",_itemSpinnerSeleccionado);
-                _db.update("servicios", cv, "num_servicio = ?", new String[]{_idServicio + ""});
-                cv.clear();
-                cv.put("marca", String.valueOf(_edtTMarca.getText()));
-                cv.put("modelo", String.valueOf(_edtTModelo.getText()));
-                cv.put("num_serie", String.valueOf(_edtTNoSerie.getText()));
 
-            }
-
+            cv.put("marca", String.valueOf(_edtTMarca.getText()));
+            cv.put("modelo", String.valueOf(_edtTModelo.getText()));
+            cv.put("num_serie", String.valueOf(_edtTNoSerie.getText()));
+            _db.update("inventario", cv, "id_elemento = ?", new String[]{_idElemento + ""});
+            cv.clear();
         }
     }
 }
