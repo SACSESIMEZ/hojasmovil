@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import android.content.ContentValues;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -26,13 +27,14 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
     private EditText _edtTMarca, _edtTModelo, _edtTNoSerie, _edtTCambs, _edtTIP, _edtTMAC, _edtTDispositivo1, _edtTMDescripcionServicio;
     private CheckBox _chkBDispositivo;
     private Spinner _spnDispositivo, _spnRAM, _spnDD, _spnSO;
-    private TextView _txtVMarca, _txtVModelo, _txtVNoSerie, _txtVTieneCambs, _txtVCambs, _txtVIP, _txtVMAC, _txtVRAM, _txtVDD, _txtVSO, _txtVDispositivo1;
+    private TextView _txtVMarca, _txtVModelo, _txtVNoSerie, _txtVCambs, _txtVIP, _txtVMAC, _txtVRAM, _txtVDD, _txtVSO, _txtVDispositivo1;
     private RadioGroup _rdGTipoDispositivo, _rdGCambs, _rdGRed, _rdGIP, _rdGRefacciones;
     private RadioButton _rdBPersonal, _rdBInstitucional, _rdBSCambs, _rdBNCambs, _rdBSRed, _rdBNRed, _rdBIPDinamica, _rdBIPEstatica, _rdBSRefacciones, _rdBNRefacciones;
     private Button _btnCapturaSN, _btnTomarFoto, _btnFinalizar, _btnGuardar;
     private ImageView _imgVEvidencia1, _imgVEvidencia2, _imgVEvidencia3, _imgVFirma;
     private ConstraintLayout _cnsLRAMDD, _cnsLRefacciones, _cnsLCambs, _cnsLRed, _cnsLEvidencia, _cnsLRadioBotonesInstitucional, _cnsLRadioBotonesIP;
     private int _itemSpinnerSeleccionado, _idServicio, _idElemento, _idDispositivo, _idTipo;
+    private boolean _servicioCreado;
     private SQLiteDatabase _db;
     private DataBase _dbHelper;
 
@@ -45,6 +47,7 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
         _idElemento = 0;
         _idDispositivo = 0;
         _idTipo = 0;
+        _servicioCreado = getIntent().getBooleanExtra("creado", false);
 
         //Conexión DB
 
@@ -57,6 +60,8 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         _spnDispositivo.setAdapter(adapter);
         _spnDispositivo.setOnItemSelectedListener(this);
+        _spnDispositivo.setSelection(0);
+        _spnDispositivo.setVisibility(View.GONE);
 
         _spnRAM = findViewById(R.id.SpnRAM);
         adapter = ArrayAdapter.createFromResource(this, R.array.ram, android.R.layout.simple_spinner_item);
@@ -86,7 +91,9 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
                     _spnDispositivo.setVisibility(View.VISIBLE);//Revela Spinner
                 } else{
                     _spnDispositivo.setSelection(0);
-                    ocultarDefault();
+                    _spnDispositivo.setVisibility(View.GONE);
+                    //ocultarDefault();
+                    //_spnDispositivo.setVisibility(View.GONE);
                 }
             }
         });
@@ -154,6 +161,8 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
             }
         });
 
+        _rdBInstitucional = findViewById(R.id.RdBInstitucional);
+
         //Campos de IP
 
         _txtVIP = findViewById(R.id.TxtVIP);
@@ -186,6 +195,8 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
                 }
             }
         });
+
+        _rdBIPEstatica = findViewById(R.id.RdBIPEstatica);
 
         //Constraint Layout con radio botones de red
 
@@ -241,6 +252,15 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
         _imgVFirma = findViewById(R.id.ImgVFirma);
 
         _btnFinalizar = findViewById(R.id.BtnFinalizar);
+        _btnFinalizar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                guardarCambiosServicio();
+                Intent intent = new Intent(getApplicationContext(), Firma.class);
+                intent.putExtra("numServicio", _idServicio);
+                startActivity(intent);
+            }
+        });
 
         _btnGuardar = findViewById(R.id.BtnGuardar);
         _btnGuardar.setOnClickListener(new View.OnClickListener() {
@@ -250,31 +270,32 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
             }
         });
 
-        ocultarDefault();
+        if(!_servicioCreado){
+            //Datos de servicio
 
-        //Datos de servicio
+            _idServicio = getIntent().getIntExtra("numServicio", 0);
+            String descripcion = getIntent().getStringExtra("descripcion");
 
-        _idServicio = getIntent().getIntExtra("idServicio", 0);
-        String descripcion = getIntent().getStringExtra("descripcion");
-
-        if(_idServicio != 0){
-            if(servicioInventario()){
-                llenarInfoDispositivo();
-                _chkBDispositivo.setChecked(true);
-                _spnDispositivo.setSelection(_idTipo);
-                mostrarInformacionDispositivos();
-            }
-            if(!descripcion.equalsIgnoreCase("") && descripcion != null){
-                _edtTMDescripcionServicio.setText(descripcion);
+            if(_idServicio != 0){
+                if(servicioInventario()){
+                    mostrarInformacionDispositivos();
+                    llenarInfoDispositivo();
+                    _chkBDispositivo.setChecked(true);
+                    _spnDispositivo.setSelection(_idTipo);
+                }
+                if(descripcion != null){
+                    if(!descripcion.equalsIgnoreCase("")){
+                        _edtTMDescripcionServicio.setText(descripcion);
+                    }
+                }
             }
         } else{
-
+            ocultarDefault();
         }
 
     }
 
     private void ocultarDefault(){
-        _spnDispositivo.setVisibility(View.GONE);
         _spnSO.setVisibility(View.GONE);
         _txtVMarca.setVisibility(View.GONE);
         _edtTMarca.setVisibility(View.GONE);
@@ -336,7 +357,6 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
                     mostrarInformacionDispositivos();
                 } else{
                     ocultarDefault();
-                    _spnDispositivo.setVisibility(View.VISIBLE);
                 }
                 break;
         }
@@ -377,37 +397,32 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
             
             c = _db.rawQuery("SELECT cambs FROM equipos_institucionales WHERE id_dispositivo = ?", new String[]{_idDispositivo + ""});
             if(c != null){
-                while(c.moveToNext()){
-                    Integer idDispositivo = c.getInt(1);
-                    if(idDispositivo != null && idDispositivo != 0){
-                        _rdGTipoDispositivo.check(R.id.RdBInstitucional);
-                        if(c.getString(0) != null && !c.getString(0).equalsIgnoreCase("")){
-                            _rdGCambs.check(R.id.RdBSCambs);
-                            _edtTCambs.setText(c.getString(0));
-                        } else{
-                            _rdGCambs.check(R.id.RdBNCambs);
-                        }
-                    } else{
-                        _rdGTipoDispositivo.check(R.id.RdBPersonal);
+                if(c.moveToNext()){
+                    _rdGTipoDispositivo.check(R.id.RdBInstitucional);
+                    if(c.getString(0).equalsIgnoreCase("")) {
+                        _rdGCambs.check(R.id.RdBNCambs);
+                    } else {
+                        _rdGCambs.check(R.id.RdBSCambs);
+                        _edtTCambs.setText(c.getString(0));
                     }
+                } else{
+                    _rdGTipoDispositivo.check(R.id.RdBPersonal);
                 }
             }
+
             c = _db.rawQuery("SELECT id_conexion, ip, mac FROM conexiones WHERE id_dispositivo = ?", new String[]{_idDispositivo + ""});
             if(c != null){
-                while (c.moveToNext()){
-                    Integer idConexion = c.getInt(0);
-                    if(idConexion != null && idConexion != 0){
-                        _rdGRed.check(R.id.RdBSRed);
-                        if(c.getString(1) != null & !c.getString(1).equalsIgnoreCase("")){
-                            _rdGIP.check(R.id.RdBIPEstatica);
-                            _edtTIP.setText(c.getString(1));
-                            _edtTMAC.setText(c.getString(2));
-                        } else{
-                            _rdGIP.check(R.id.RdBIPDinamica);
-                        }
+                if(c.moveToNext()){
+                    _rdGRed.check(R.id.RdBSRed);
+                    if(c.getString(1) != null & !c.getString(1).equalsIgnoreCase("")){
+                        _rdGIP.check(R.id.RdBIPEstatica);
+                        _edtTIP.setText(c.getString(1));
+                        _edtTMAC.setText(c.getString(2));
                     } else{
-                        _rdGRed.check(R.id.RdBNRed);
+                        _rdGIP.check(R.id.RdBIPDinamica);
                     }
+                } else{
+                    _rdGRed.check(R.id.RdBNRed);
                 }
             }
 
@@ -426,22 +441,48 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
     }
 
     private void guardarCambiosServicio(){
-        guardarTipoDispositivo();
-        guardarInfoDispositivo();
-        guardarCambs();
+        _db = _dbHelper.getWritableDatabase();
+        if(_servicioCreado){
+            guardarRegistro();
+        }
+
+        if(_chkBDispositivo.isChecked()){
+            guardarTipoDispositivo();
+            guardarInfoDispositivo();
+            guardarCambs();
+            guardarConexion();
+            if(_itemSpinnerSeleccionado < 3){
+                guardarInfoPC();
+            }
+        } else{
+            try{
+                _db.delete("servicio_inventario_dispositivos", "num_servicio = ?", new String[]{_idServicio + ""});
+            } catch (Exception e){
+                System.out.println(e.getMessage());
+            }
+        }
+
+
+        ContentValues cv = new ContentValues();
+        cv.put("descripcion_servicio", String.valueOf(_edtTMDescripcionServicio.getText()));
+        _db.update("servicios", cv, "num_servicio = ?", new String[]{_idServicio + ""});
     }
 
     private void guardarTipoDispositivo(){
-        _db = _dbHelper.getWritableDatabase();
-        if(_db != null) {
-            ContentValues cv = new ContentValues();
-            cv.put("id_tipo", _itemSpinnerSeleccionado);
-            try{
-                _db.update("dispositivos", cv, "id_dispositivos = ?", new String[]{_idDispositivo + ""});
-            } catch (Exception e){
-
+        if(_itemSpinnerSeleccionado != 0){
+            _db = _dbHelper.getWritableDatabase();
+            if(_db != null) {
+                ContentValues cv = new ContentValues();
+                cv.put("id_tipo", _itemSpinnerSeleccionado);
+                try{
+                    _db.update("dispositivos", cv, "id_dispositivos = ?", new String[]{_idDispositivo + ""});
+                } catch (Exception e){
+                    Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+                }
+                cv.clear();
             }
-            cv.clear();
+        } else{
+            Toast.makeText(this, "Selecciona un dispositivo", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -459,14 +500,112 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
 
     private void guardarCambs(){
         _db = _dbHelper.getWritableDatabase();
+        if(_rdBInstitucional.isChecked()){
+            if(_db != null){
+                ContentValues cv = new ContentValues();
+                cv.put("cambs", String.valueOf(_edtTCambs.getText()));
+                _db.update("equipos_institucionales", cv, "id_dispositivo = ?", new String[]{_idDispositivo + ""});
+                cv.clear();
+            }
+        } else{
+            try {
+                _db.delete("equipos_institucionales", "id_dispositivo = ?", new String[]{_idDispositivo + ""});
+            } catch (Exception e){
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+
+    private void guardarConexion(){
+        _db = _dbHelper.getWritableDatabase();
+        if(_rdBSRed.isChecked()){
+            if(_db != null){
+                ContentValues cv = new ContentValues();
+                cv.put("mac", String.valueOf(_edtTMAC.getText()));
+                if(_rdBIPEstatica.isChecked()){
+                    cv.put("ip", String.valueOf(_edtTIP.getText()));
+                }
+                _db.update("conexiones", cv, "id_dispositivo = ?", new String[]{_idDispositivo + ""});
+                cv.clear();
+            }
+        } else{
+            try {
+                _db.delete("conexiones", "id_dispositivo = ?", new String[]{_idDispositivo + ""});
+            } catch (Exception e){
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+
+    private void guardarInfoPC(){
+        _db = _dbHelper.getWritableDatabase();
         if(_db != null){
             ContentValues cv = new ContentValues();
+            cv.put("id_ram", _spnRAM.getSelectedItemPosition());
+            cv.put("id_disco_duro", _spnDD.getSelectedItemPosition());
+            cv.put("id_so", _spnSO.getSelectedItemPosition());
+            _db.update("computadoras", cv, "id_elemento = ?", new String[]{_idElemento + ""});
+        }
+    }
 
-            cv.put("marca", String.valueOf(_edtTMarca.getText()));
-            cv.put("modelo", String.valueOf(_edtTModelo.getText()));
-            cv.put("num_serie", String.valueOf(_edtTNoSerie.getText()));
-            _db.update("inventario", cv, "id_elemento = ?", new String[]{_idElemento + ""});
-            cv.clear();
+    private void guardarRegistro(){
+        if(_itemSpinnerSeleccionado != 0){
+            _db = _dbHelper.getReadableDatabase();
+
+            if(_db != null){
+                Cursor c = _db.rawQuery("SELECT id_elemento FROM inventario WHERE num_serie = ?", new String[]{String.valueOf(_edtTNoSerie.getText())});
+                if(c.moveToNext()){
+                   _idElemento = c.getInt(0);
+                }
+            }
+            _db = _dbHelper.getWritableDatabase();
+            if(_db != null){
+                ContentValues cv = new ContentValues();
+                cv.put("marca", String.valueOf(_edtTMarca.getText()));
+                cv.put("modelo", String.valueOf(_edtTModelo.getText()));
+                cv.put("num_serie", String.valueOf(_edtTNoSerie.getText()));
+                if(_idElemento == 0){
+                    _idElemento = (int) _db.insert("inventario", null, cv);
+                    cv.clear();
+
+                    cv.put("id_elemento", _idElemento);
+                    cv.put("id_tipo", _itemSpinnerSeleccionado);
+                    _idDispositivo = (int) _db.insert("dispositivos", null, cv);
+                    cv.clear();
+
+                    cv.put("num_servicio", _idServicio);
+                    cv.put("id_dispositivo", _idDispositivo);
+                    _db.insert("servicio_inventario_dispositivos", null, cv);
+                    cv.clear();
+
+                    if(_itemSpinnerSeleccionado < 3){
+                        cv.put("id_elemento", _idElemento);
+                        cv.put("id_ram", _spnRAM.getSelectedItemPosition());
+                        cv.put("id_disco_duro", _spnDD.getSelectedItemPosition());
+                        cv.put("id_so", _spnSO.getSelectedItemPosition());
+                        _db.insert("computadoras", null, cv);
+                        cv.clear();
+                    }
+
+                    if (_rdBSCambs.isChecked()){
+                        cv.put("id_dispositivo", _idDispositivo);
+                        _db.insert("equipos_institucionales", null, cv);
+                        cv.clear();
+                    }
+
+                    if(_rdBSRed.isChecked()){
+                        cv.put("id_dispositivo", _idDispositivo);
+                        cv.put("mac", String.valueOf(_edtTMAC.getText()));
+                        if(_rdBIPEstatica.isChecked()){
+                            cv.put("ip", String.valueOf(_edtTIP.getText()));
+                        }
+                        _db.insert("conexiones", null, cv);
+                    }
+
+                } else{
+                    _db.update("inventario", cv, "id_elemento = ?", new String[]{_idElemento + ""});
+                }
+            }
         }
     }
 }

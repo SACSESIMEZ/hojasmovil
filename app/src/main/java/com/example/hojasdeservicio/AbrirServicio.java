@@ -107,7 +107,7 @@ public class AbrirServicio extends AppCompatActivity implements AdapterView.OnIt
                     if(_db != null){
                         cv.put("persona_reporta", String.valueOf(_edtTPersona.getText()));
                         cv.put("correo_electronico", String.valueOf(_edtTCorreo.getText()));
-                        cv.put("descripcion", String.valueOf(_edtTMDescripcion.getText()));
+                        cv.put("descripcion_reporte", String.valueOf(_edtTMDescripcion.getText()));
                         Calendar cal = Calendar.getInstance();
                         Date date = new Date(cal.get(Calendar.YEAR) - 1900, cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH));
                         String fecha = DateFormat.format("yyyy-MM-dd", date).toString();
@@ -118,7 +118,8 @@ public class AbrirServicio extends AppCompatActivity implements AdapterView.OnIt
                     }
 
                     Intent intent = new Intent(this, Captura.class);
-
+                    intent.putExtra("creado", true);
+                    intent.putExtra("numServicio", id);
                     startActivity(intent);
                     finish();
                 } else{
@@ -134,7 +135,6 @@ public class AbrirServicio extends AppCompatActivity implements AdapterView.OnIt
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
         _itemSpinnerSeleccionado = adapterView.getSelectedItemPosition();
         int max = _spnLugares.getCount();
-        Toast.makeText(this, max + "", Toast.LENGTH_SHORT).show();
         //String item = String.valueOf(adapterView.getSelectedItem());
         if(_itemSpinnerSeleccionado == 87){
             _edtTOtro.setVisibility(View.VISIBLE);

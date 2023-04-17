@@ -26,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
     private Button _btnCrearServicio;
     private TableLayout _tblLListaS;
     private SQLiteDatabase _db;
-    private final String _queryServicios = "SELECT lugares.lugar, servicios.fecha_ini, servicios.descripcion_servicio from servicios INNER JOIN lugares ON servicios.id_lugar = lugares.id_lugar";
+    private final String _queryServicios = "SELECT servicios.num_servicio, lugares.lugar, servicios.fecha_ini, servicios.descripcion_servicio from servicios INNER JOIN lugares ON servicios.id_lugar = lugares.id_lugar";
     //private final String _prueba = "SELECT lugar from lugares";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,59 +47,62 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        _tblLListaS.removeAllViews();
-        SharedPreferences sp = getSharedPreferences("HojasServicio", Context.MODE_PRIVATE);
-        _nombre = sp.getString("Nombre", "");
+        try {
+            _tblLListaS.removeAllViews();
+            SharedPreferences sp = getSharedPreferences("HojasServicio", Context.MODE_PRIVATE);
+            _nombre = sp.getString("Nombre", "");
 
-        if(_nombre == null || _nombre.equalsIgnoreCase("")){
-            Intent intent = new Intent(this, Bienvenida.class);
-            startActivity(intent);
-            finish();
-        }
+            if(_nombre == null || _nombre.equalsIgnoreCase("")){
+                Intent intent = new Intent(this, Bienvenida.class);
+                startActivity(intent);
+                finish();
+            }
 
-        DataBase dbHelper = new DataBase(getApplicationContext());
-        _db = dbHelper.getReadableDatabase();
+            DataBase dbHelper = new DataBase(getApplicationContext());
+            _db = dbHelper.getReadableDatabase();
 
-        if(_db != null){
-            Cursor c = _db.rawQuery(_queryServicios, null);
+            if(_db != null){
+                Cursor c = _db.rawQuery(_queryServicios, null);
 
-            try{
-                if(c != null){
-                    while(c.moveToNext()){
-                        System.out.println("*******************************************");
-                        String lugar = c.getString(0);
-                        String fecha = c.getString(1);
-                        String descripcion = c.getString(2);
-                        TableRow fila = new TableRow(getApplicationContext());
-                        fila.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                Intent intent = new Intent(getApplicationContext(), Captura.class);
-                                intent.putExtra("descripcion", descripcion);
-                                //intent.c
-                                startActivity(intent);
-                            }
-                        });
-                        TextView txtVlugar = new TextView(getApplicationContext());
-                        float densidadPixeles = getApplicationContext().getResources().getDisplayMetrics().density;
-                        float valorPaddingP = 10*densidadPixeles;
-                        float valorHeight = 45*densidadPixeles;
-                        txtVlugar.setPadding(0, (int) valorPaddingP, 0, (int) valorPaddingP);
-                        txtVlugar.setHeight((int) valorHeight);
-                        txtVlugar.setText(lugar);
-                        txtVlugar.setTextSize(18);
-                        txtVlugar.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
-                        txtVlugar.setBackgroundResource(R.drawable.top_bottom_border);
-                        txtVlugar.setTextColor(Color.WHITE);
+                try{
+                    if(c != null){
+                        while(c.moveToNext()){
+                            System.out.println("*******************************************");
+                            int numServicio = c.getInt(0);
+                            String lugar = c.getString(1);
+                            String fecha = c.getString(2);
+                            String descripcion = c.getString(3);
+                            TableRow fila = new TableRow(getApplicationContext());
+                            fila.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    Intent intent = new Intent(getApplicationContext(), Captura.class);
+                                    intent.putExtra("numServicio", numServicio);
+                                    intent.putExtra("descripcion", descripcion);
+                                    //intent.c
+                                    startActivity(intent);
+                                }
+                            });
+                            TextView txtVlugar = new TextView(getApplicationContext());
+                            float densidadPixeles = getApplicationContext().getResources().getDisplayMetrics().density;
+                            float valorPaddingP = 10*densidadPixeles;
+                            float valorHeight = 45*densidadPixeles;
+                            txtVlugar.setPadding(0, (int) valorPaddingP, 0, (int) valorPaddingP);
+                            txtVlugar.setHeight((int) valorHeight);
+                            txtVlugar.setText(lugar);
+                            txtVlugar.setTextSize(18);
+                            txtVlugar.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
+                            txtVlugar.setBackgroundResource(R.drawable.top_bottom_border);
+                            txtVlugar.setTextColor(Color.WHITE);
 
-                        TextView txtVFecha = new TextView(getApplicationContext());
-                        txtVFecha.setPadding(0, (int) valorPaddingP, (int) valorPaddingP, (int) valorPaddingP);
-                        txtVFecha.setHeight((int) valorHeight);
-                        txtVFecha.setText(fecha);
-                        txtVFecha.setTextSize(18);
-                        txtVFecha.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
-                        txtVFecha.setBackgroundResource(R.drawable.top_bottom_border);
-                        txtVFecha.setTextColor(Color.WHITE);
+                            TextView txtVFecha = new TextView(getApplicationContext());
+                            txtVFecha.setPadding(0, (int) valorPaddingP, (int) valorPaddingP, (int) valorPaddingP);
+                            txtVFecha.setHeight((int) valorHeight);
+                            txtVFecha.setText(fecha);
+                            txtVFecha.setTextSize(18);
+                            txtVFecha.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
+                            txtVFecha.setBackgroundResource(R.drawable.top_bottom_border);
+                            txtVFecha.setTextColor(Color.WHITE);
 
 
                         /*TextView texto = new TextView(getApplicationContext());
@@ -113,14 +116,14 @@ public class MainActivity extends AppCompatActivity {
                         fila.addView(texto);
                         */
 
-                        fila.addView(txtVFecha);
-                        fila.addView(txtVlugar);
-                        _tblLListaS.addView(fila);
+                            fila.addView(txtVFecha);
+                            fila.addView(txtVlugar);
+                            _tblLListaS.addView(fila);
+                        }
                     }
+                } catch (Exception e){
+                    Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
                 }
-            } catch (Exception e){
-                Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
-            }
                 /*
                 try{
                     if(c.getCount() > 0){
@@ -137,7 +140,10 @@ public class MainActivity extends AppCompatActivity {
                 } catch (Exception e){
                     Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
                 }*/
-            //}
+                //}
+            }
+        } catch (Exception e){
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
 }
