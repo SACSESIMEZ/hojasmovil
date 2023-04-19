@@ -7,6 +7,8 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -34,265 +36,55 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
     private ImageView _imgVEvidencia1, _imgVEvidencia2, _imgVEvidencia3, _imgVFirma;
     private ConstraintLayout _cnsLRAMDD, _cnsLRefacciones, _cnsLCambs, _cnsLRed, _cnsLEvidencia, _cnsLRadioBotonesInstitucional, _cnsLRadioBotonesIP;
     private int _itemSpinnerSeleccionado, _idServicio, _idElemento, _idDispositivo, _idTipo;
-    private boolean _servicioCreado;
+    private boolean _servicioCreado, _servicioTerminado;
     private SQLiteDatabase _db;
     private DataBase _dbHelper;
+    private String _descripcion;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_captura);
 
-        _idServicio = 0;
+        _idServicio = getIntent().getIntExtra("numServicio", 0);
         _idElemento = 0;
         _idDispositivo = 0;
         _idTipo = 0;
         _servicioCreado = getIntent().getBooleanExtra("creado", false);
+        _servicioTerminado = getIntent().getBooleanExtra("terminado", false);
+
+        iniciarComponentes();
 
         //Conexión DB
 
         _dbHelper = new DataBase(getApplicationContext());
 
-        //Todos los spinners
+        //Ocultar al inicio y mostrar datos guardados
 
-        _spnDispositivo = findViewById(R.id.SpnDispositivo);//Spinner "Dispositivos"
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.dispositivos, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        _spnDispositivo.setAdapter(adapter);
-        _spnDispositivo.setOnItemSelectedListener(this);
-        _spnDispositivo.setSelection(0);
-        _spnDispositivo.setVisibility(View.GONE);
-
-        _spnRAM = findViewById(R.id.SpnRAM);
-        adapter = ArrayAdapter.createFromResource(this, R.array.ram, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        _spnRAM.setAdapter(adapter);
-        _spnRAM.setOnItemSelectedListener(this);
-
-        _spnDD = findViewById(R.id.SpnDD);
-        adapter = ArrayAdapter.createFromResource(this, R.array.dd, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        _spnDD.setAdapter(adapter);
-        _spnDD.setOnItemSelectedListener(this);
-
-        _spnSO = findViewById(R.id.SpnSO);
-        adapter = ArrayAdapter.createFromResource(this, R.array.so, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        _spnSO.setAdapter(adapter);
-        _spnSO.setOnItemSelectedListener(this);
-
-        //CheckBox "¿Atiendes un dispositivo?
-
-        _chkBDispositivo = findViewById(R.id.ChkBDispositivo);
-        _chkBDispositivo.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if(b){
-                    _spnDispositivo.setVisibility(View.VISIBLE);//Revela Spinner
-                } else{
-                    _spnDispositivo.setSelection(0);
-                    _spnDispositivo.setVisibility(View.GONE);
-                    //ocultarDefault();
-                    //_spnDispositivo.setVisibility(View.GONE);
-                }
-            }
-        });
-
-        //Información génerica de dispositivos
-
-        _txtVMarca = findViewById(R.id.TxtVMarca);
-
-        _edtTMarca = findViewById(R.id.EdtTMarca);
-
-        _txtVModelo = findViewById(R.id.TxtVModelo);
-
-        _edtTModelo = findViewById(R.id.EdtTModelo);
-
-        _txtVNoSerie = findViewById(R.id.TxtVNoSerie);
-
-        _edtTNoSerie = findViewById(R.id.EdtTNoSerie);
-
-
-        //Sobre CAMBS
-
-        _txtVCambs = findViewById(R.id.TxtVCambs);
-
-        _edtTCambs = findViewById(R.id.EdtTCambs);
-
-        _cnsLCambs = findViewById(R.id.CnsLCambs);
-
-        _rdGCambs = findViewById(R.id.RdGCambs);
-        _rdGCambs.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup radioGroup, int i) {
-                switch (i){
-                    case R.id.RdBSCambs:
-                        _txtVCambs.setVisibility(View.VISIBLE);
-                        _edtTCambs.setVisibility(View.VISIBLE);
-                        break;
-                    case R.id.RdBNCambs:
-                        _txtVCambs.setVisibility(View.GONE);
-                        _edtTCambs.setVisibility(View.GONE);
-                        break;
-                    default:
-                        break;
-                }
-            }
-        });
-
-        //Constraint Layout que contiene radio botones "Personal" e "Institucional"
-
-        _cnsLRadioBotonesInstitucional = findViewById(R.id.CnsLRadioBotonesInstitucional);
-
-        _rdGTipoDispositivo = findViewById(R.id.RdGTipoDispositivo);
-        _rdGTipoDispositivo.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup radioGroup, int i) {
-                switch (i){
-                    case R.id.RdBPersonal:
-                        _cnsLCambs.setVisibility(View.GONE);
-                        break;
-                    case R.id.RdBInstitucional:
-                        _cnsLCambs.setVisibility(View.VISIBLE);
-                        break;
-                    default:
-                        break;
-                }
-            }
-        });
-
-        _rdBInstitucional = findViewById(R.id.RdBInstitucional);
-
-        //Campos de IP
-
-        _txtVIP = findViewById(R.id.TxtVIP);
-
-        _edtTIP = findViewById(R.id.EdtTIP);
-
-        _txtVMAC = findViewById(R.id.TxtVMAC);
-
-        _edtTMAC = findViewById(R.id.EdtTMAC);
-
-        //Constraint Layout con radio botones "IP dinámica" e "IP estática"
-
-        _cnsLRadioBotonesIP = findViewById(R.id.CnsLRadioBotonesIP);
-
-        _rdGIP = findViewById(R.id.RdGIP);
-        _rdGIP.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup radioGroup, int i) {
-                switch (i){
-                    case R.id.RdBIPEstatica:
-                        _txtVIP.setVisibility(View.VISIBLE);
-                        _edtTIP.setVisibility(View.VISIBLE);
-                        break;
-                    case R.id.RdBIPDinamica:
-                        _txtVIP.setVisibility(View.GONE);
-                        _edtTIP.setVisibility(View.GONE);
-                        break;
-                    default:
-                        break;
-                }
-            }
-        });
-
-        _rdBIPEstatica = findViewById(R.id.RdBIPEstatica);
-
-        //Constraint Layout con radio botones de red
-
-        _cnsLRed = findViewById(R.id.CnsLRed);
-
-        _rdGRed = findViewById(R.id.RdGRed);
-        _rdGRed.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup radioGroup, int i) {
-                switch (i){
-                    case R.id.RdBSRed:
-                        _cnsLRadioBotonesIP.setVisibility(View.VISIBLE);
-                        _txtVMAC.setVisibility(View.VISIBLE);
-                        _edtTMAC.setVisibility(View.VISIBLE);
-                        break;
-                    case R.id.RdBNRed:
-                        _cnsLRadioBotonesIP.setVisibility(View.GONE);
-                        _txtVMAC.setVisibility(View.GONE);
-                        _edtTMAC.setVisibility(View.GONE);
-                        break;
-                    default:
-                        break;
-                }
-            }
-        });
-
-        _cnsLRAMDD = findViewById(R.id.CnsLRamDD);
-
-        _txtVSO = findViewById(R.id.TxtVSO);
-
-        _cnsLRefacciones = findViewById(R.id.CnsLRefacciones);
-
-        _rdGRefacciones = findViewById(R.id.RdGRefacciones);
-
-        _btnCapturaSN = findViewById(R.id.BtnCapturarSN);
-
-        _txtVDispositivo1 = findViewById(R.id.TxtVDispositivo1);
-
-        _edtTDispositivo1 = findViewById(R.id.EdtTDispositivo1);
-
-        _edtTMDescripcionServicio = findViewById(R.id.EdtTMDescripcionServicio);
-
-        _btnTomarFoto = findViewById(R.id.BtnTomarFoto);
-
-        _cnsLEvidencia = findViewById(R.id.CnsLEvidencia);
-
-        _imgVEvidencia1 = findViewById(R.id.ImgVEvidencia1);
-
-        _imgVEvidencia2 = findViewById(R.id.ImgVEvidencia2);
-
-        _imgVEvidencia3 = findViewById(R.id.ImgVEvidencia3);
-
-        _imgVFirma = findViewById(R.id.ImgVFirma);
-
-        _btnFinalizar = findViewById(R.id.BtnFinalizar);
-        _btnFinalizar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                guardarCambiosServicio();
-                Intent intent = new Intent(getApplicationContext(), Firma.class);
-                intent.putExtra("numServicio", _idServicio);
-                startActivity(intent);
-            }
-        });
-
-        _btnGuardar = findViewById(R.id.BtnGuardar);
-        _btnGuardar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                guardarCambiosServicio();
-            }
-        });
-
+        ocultarDefault();
         if(!_servicioCreado){
             //Datos de servicio
-
-            _idServicio = getIntent().getIntExtra("numServicio", 0);
-            String descripcion = getIntent().getStringExtra("descripcion");
+            _descripcion = getIntent().getStringExtra("descripcion");
 
             if(_idServicio != 0){
                 if(servicioInventario()){
-                    mostrarInformacionDispositivos();
                     llenarInfoDispositivo();
                     _chkBDispositivo.setChecked(true);
-                    _spnDispositivo.setSelection(_idTipo);
                 }
-                if(descripcion != null){
-                    if(!descripcion.equalsIgnoreCase("")){
-                        _edtTMDescripcionServicio.setText(descripcion);
+                if(_descripcion != null){
+                    if(!_descripcion.equalsIgnoreCase("")){
+                        _edtTMDescripcionServicio.setText(_descripcion);
                     }
                 }
             }
-        } else{
-            ocultarDefault();
         }
 
+        if(_servicioTerminado){
+            _btnFinalizar.setVisibility(View.GONE);
+            _btnGuardar.setVisibility(View.GONE);
+            bloquearEdicion();
+            mostrarFirma();
+        }
     }
 
     private void ocultarDefault(){
@@ -327,7 +119,6 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
     }
 
     private void mostrarInformacionDispositivos(){
-
         _txtVMarca.setVisibility(View.VISIBLE);
         _edtTMarca.setVisibility(View.VISIBLE);
         _txtVModelo.setVisibility(View.VISIBLE);
@@ -348,11 +139,53 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
         }
     }
 
+    private void mostrarFirma(){
+        _imgVFirma.setVisibility(View.VISIBLE);
+        byte[] bFirma = null;
+        _db = _dbHelper.getReadableDatabase();
+        Cursor c = _db.rawQuery("SELECT firma FROM servicios WHERE num_servicio = ?", new String[]{_idServicio + ""});
+        if(c != null){
+            while(c.moveToNext()){
+                bFirma = c.getBlob(0);
+            }
+        }
+        float densidadPixeles = getApplicationContext().getResources().getDisplayMetrics().density;
+        float valorWidth = 115*densidadPixeles;
+        float valorHeight = 200*densidadPixeles;
+        Bitmap bmp = BitmapFactory.decodeByteArray(bFirma, 0, bFirma.length);
+        _imgVFirma.setImageBitmap(Bitmap.createScaledBitmap(bmp, (int) valorWidth, (int) valorHeight, false));
+    }
+
+    private void bloquearEdicion(){
+        _chkBDispositivo.setEnabled(false);
+        _spnDispositivo.setEnabled(false);
+        _edtTMarca.setEnabled(false);
+        _edtTModelo.setEnabled(false);
+        _edtTNoSerie.setEnabled(false);
+        _rdGTipoDispositivo.setEnabled(false);
+        _rdGCambs.setEnabled(false);
+        _edtTCambs.setEnabled(false);
+        _rdGRed.setEnabled(false);
+        _rdGIP.setEnabled(false);
+        _edtTIP.setEnabled(false);
+        _edtTMAC.setEnabled(false);
+        _spnRAM.setEnabled(false);
+        _spnDD.setEnabled(false);
+        _spnSO.setEnabled(false);
+        _rdGRefacciones.setEnabled(false);
+        _btnCapturaSN.setEnabled(false);
+        _edtTDispositivo1.setEnabled(false);
+        _edtTMDescripcionServicio.setEnabled(false);
+        _btnTomarFoto.setEnabled(false);
+        _btnGuardar.setEnabled(false);
+        _btnFinalizar.setEnabled(false);
+    }
+
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-        _itemSpinnerSeleccionado = adapterView.getSelectedItemPosition();
         switch (adapterView.getId()){
             case R.id.SpnDispositivo:
+                _itemSpinnerSeleccionado = adapterView.getSelectedItemPosition();
                 if(_itemSpinnerSeleccionado != 0){
                     mostrarInformacionDispositivos();
                 } else{
@@ -364,6 +197,7 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
 
     @Override
     public void onNothingSelected(AdapterView<?> adapterView) {
+        ocultarDefault();
     }
 
     private boolean servicioInventario() {
@@ -377,6 +211,8 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
                     _idDispositivo = c.getInt(1);
                     _idTipo = c.getInt(2);
                     atiendeDispositivo = true;
+                    _spnDispositivo.setVisibility(View.VISIBLE);
+                    _spnDispositivo.setSelection(_idTipo);
                 }
             }
         }
@@ -387,19 +223,20 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
         _db = _dbHelper.getReadableDatabase();
         if(_db != null){
             Cursor c = _db.rawQuery("SELECT marca, modelo, num_serie FROM inventario WHERE id_elemento = ?", new String[]{_idElemento + ""});
-            if(c != null){
-                while(c.moveToNext()){
+
+            if(c != null) {
+                while (c.moveToNext()) {
                     _edtTMarca.setText(c.getString(0));
                     _edtTModelo.setText(c.getString(1));
                     _edtTNoSerie.setText(c.getString(2));
                 }
             }
-            
+
             c = _db.rawQuery("SELECT cambs FROM equipos_institucionales WHERE id_dispositivo = ?", new String[]{_idDispositivo + ""});
             if(c != null){
                 if(c.moveToNext()){
                     _rdGTipoDispositivo.check(R.id.RdBInstitucional);
-                    if(c.getString(0).equalsIgnoreCase("")) {
+                    if(c.getString(0) == null) {
                         _rdGCambs.check(R.id.RdBNCambs);
                     } else {
                         _rdGCambs.check(R.id.RdBSCambs);
@@ -409,7 +246,6 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
                     _rdGTipoDispositivo.check(R.id.RdBPersonal);
                 }
             }
-
             c = _db.rawQuery("SELECT id_conexion, ip, mac FROM conexiones WHERE id_dispositivo = ?", new String[]{_idDispositivo + ""});
             if(c != null){
                 if(c.moveToNext()){
@@ -426,186 +262,355 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
                 }
             }
 
-            c = _db.rawQuery("SELECT id_computadoras, id_ram, id_disco_duro, id_so FROM computadoras WHERE id_dispositivo = ?", new String[]{_idDispositivo + ""});
+            c = _db.rawQuery("SELECT id_ram, id_disco_duro, id_so FROM computadoras WHERE id_elemento = ?", new String[]{_idElemento + ""});
             if(c != null){
                 while(c.moveToNext()){
-                    Integer idComputadora = c.getInt(0);
-                    if(idComputadora != null && idComputadora != 0){
-                        _spnRAM.setSelection(c.getInt(1));
-                        _spnDD.setSelection(c.getInt(2));
-                        _spnSO.setSelection(c.getInt(3));
-                    }
+                    _spnRAM.setSelection(c.getInt(0));
+                    _spnDD.setSelection(c.getInt(1));
+                    _spnSO.setSelection(c.getInt(2));
                 }
             }
-        }
-    }
-
-    private void guardarCambiosServicio(){
-        _db = _dbHelper.getWritableDatabase();
-        if(_servicioCreado){
-            guardarRegistro();
-        }
-
-        if(_chkBDispositivo.isChecked()){
-            guardarTipoDispositivo();
-            guardarInfoDispositivo();
-            guardarCambs();
-            guardarConexion();
-            if(_itemSpinnerSeleccionado < 3){
-                guardarInfoPC();
-            }
-        } else{
-            try{
-                _db.delete("servicio_inventario_dispositivos", "num_servicio = ?", new String[]{_idServicio + ""});
-            } catch (Exception e){
-                System.out.println(e.getMessage());
-            }
-        }
-
-
-        ContentValues cv = new ContentValues();
-        cv.put("descripcion_servicio", String.valueOf(_edtTMDescripcionServicio.getText()));
-        _db.update("servicios", cv, "num_servicio = ?", new String[]{_idServicio + ""});
-    }
-
-    private void guardarTipoDispositivo(){
-        if(_itemSpinnerSeleccionado != 0){
-            _db = _dbHelper.getWritableDatabase();
-            if(_db != null) {
-                ContentValues cv = new ContentValues();
-                cv.put("id_tipo", _itemSpinnerSeleccionado);
-                try{
-                    _db.update("dispositivos", cv, "id_dispositivos = ?", new String[]{_idDispositivo + ""});
-                } catch (Exception e){
-                    Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
-                }
-                cv.clear();
-            }
-        } else{
-            Toast.makeText(this, "Selecciona un dispositivo", Toast.LENGTH_LONG).show();
-        }
-    }
-
-    private void guardarInfoDispositivo(){
-        _db = _dbHelper.getWritableDatabase();
-        if(_db != null){
-            ContentValues cv=new ContentValues();
-            cv.put("marca", String.valueOf(_edtTMarca.getText()));
-            cv.put("modelo", String.valueOf(_edtTModelo.getText()));
-            cv.put("num_serie", String.valueOf(_edtTNoSerie.getText()));
-            _db.update("inventario", cv, "id_elemento = ?", new String[]{_idElemento + ""});
-            cv.clear();
-        }
-    }
-
-    private void guardarCambs(){
-        _db = _dbHelper.getWritableDatabase();
-        if(_rdBInstitucional.isChecked()){
-            if(_db != null){
-                ContentValues cv = new ContentValues();
-                cv.put("cambs", String.valueOf(_edtTCambs.getText()));
-                _db.update("equipos_institucionales", cv, "id_dispositivo = ?", new String[]{_idDispositivo + ""});
-                cv.clear();
-            }
-        } else{
-            try {
-                _db.delete("equipos_institucionales", "id_dispositivo = ?", new String[]{_idDispositivo + ""});
-            } catch (Exception e){
-                System.out.println(e.getMessage());
-            }
-        }
-    }
-
-    private void guardarConexion(){
-        _db = _dbHelper.getWritableDatabase();
-        if(_rdBSRed.isChecked()){
-            if(_db != null){
-                ContentValues cv = new ContentValues();
-                cv.put("mac", String.valueOf(_edtTMAC.getText()));
-                if(_rdBIPEstatica.isChecked()){
-                    cv.put("ip", String.valueOf(_edtTIP.getText()));
-                }
-                _db.update("conexiones", cv, "id_dispositivo = ?", new String[]{_idDispositivo + ""});
-                cv.clear();
-            }
-        } else{
-            try {
-                _db.delete("conexiones", "id_dispositivo = ?", new String[]{_idDispositivo + ""});
-            } catch (Exception e){
-                System.out.println(e.getMessage());
-            }
-        }
-    }
-
-    private void guardarInfoPC(){
-        _db = _dbHelper.getWritableDatabase();
-        if(_db != null){
-            ContentValues cv = new ContentValues();
-            cv.put("id_ram", _spnRAM.getSelectedItemPosition());
-            cv.put("id_disco_duro", _spnDD.getSelectedItemPosition());
-            cv.put("id_so", _spnSO.getSelectedItemPosition());
-            _db.update("computadoras", cv, "id_elemento = ?", new String[]{_idElemento + ""});
         }
     }
 
     private void guardarRegistro(){
-        if(_itemSpinnerSeleccionado != 0){
-            _db = _dbHelper.getReadableDatabase();
-
-            if(_db != null){
-                Cursor c = _db.rawQuery("SELECT id_elemento FROM inventario WHERE num_serie = ?", new String[]{String.valueOf(_edtTNoSerie.getText())});
-                if(c.moveToNext()){
-                   _idElemento = c.getInt(0);
-                }
-            }
-            _db = _dbHelper.getWritableDatabase();
-            if(_db != null){
-                ContentValues cv = new ContentValues();
-                cv.put("marca", String.valueOf(_edtTMarca.getText()));
-                cv.put("modelo", String.valueOf(_edtTModelo.getText()));
-                cv.put("num_serie", String.valueOf(_edtTNoSerie.getText()));
-                if(_idElemento == 0){
-                    _idElemento = (int) _db.insert("inventario", null, cv);
-                    cv.clear();
-
-                    cv.put("id_elemento", _idElemento);
-                    cv.put("id_tipo", _itemSpinnerSeleccionado);
-                    _idDispositivo = (int) _db.insert("dispositivos", null, cv);
-                    cv.clear();
-
-                    cv.put("num_servicio", _idServicio);
-                    cv.put("id_dispositivo", _idDispositivo);
-                    _db.insert("servicio_inventario_dispositivos", null, cv);
-                    cv.clear();
-
-                    if(_itemSpinnerSeleccionado < 3){
-                        cv.put("id_elemento", _idElemento);
-                        cv.put("id_ram", _spnRAM.getSelectedItemPosition());
-                        cv.put("id_disco_duro", _spnDD.getSelectedItemPosition());
-                        cv.put("id_so", _spnSO.getSelectedItemPosition());
-                        _db.insert("computadoras", null, cv);
-                        cv.clear();
-                    }
-
-                    if (_rdBSCambs.isChecked()){
-                        cv.put("id_dispositivo", _idDispositivo);
-                        _db.insert("equipos_institucionales", null, cv);
-                        cv.clear();
-                    }
-
-                    if(_rdBSRed.isChecked()){
-                        cv.put("id_dispositivo", _idDispositivo);
-                        cv.put("mac", String.valueOf(_edtTMAC.getText()));
-                        if(_rdBIPEstatica.isChecked()){
-                            cv.put("ip", String.valueOf(_edtTIP.getText()));
-                        }
-                        _db.insert("conexiones", null, cv);
-                    }
-
+        ContentValues cv = new ContentValues();
+        _db = _dbHelper.getWritableDatabase();
+        if(_chkBDispositivo.isChecked()){
+            if(_itemSpinnerSeleccionado != 0){
+                if(String.valueOf(_edtTNoSerie.getText()).equalsIgnoreCase("")){
+                    Toast.makeText(this, "Ingrese el número de serie del dispositivo.", Toast.LENGTH_LONG).show();
+                    return;
                 } else{
-                    _db.update("inventario", cv, "id_elemento = ?", new String[]{_idElemento + ""});
+                    _db = _dbHelper.getReadableDatabase();
+                    if(_db != null){
+                        Cursor c = _db.rawQuery("SELECT id_elemento FROM inventario WHERE num_serie = ?", new String[]{String.valueOf(_edtTNoSerie.getText())});
+                        if(c.moveToNext()){
+                            _idElemento = c.getInt(0);
+                        }
+                    }
+                    _db = _dbHelper.getWritableDatabase();
+                    if(_db != null){
+                        cv.put("marca", String.valueOf(_edtTMarca.getText()));
+                        cv.put("modelo", String.valueOf(_edtTModelo.getText()));
+                        cv.put("num_serie", String.valueOf(_edtTNoSerie.getText()));
+
+                        if(_idElemento == 0){
+                            _idElemento = (int) _db.insert("inventario", null, cv);
+                            cv.clear();
+
+                            cv.put("id_elemento", _idElemento);
+                            cv.put("id_tipo", _itemSpinnerSeleccionado);
+                            _idDispositivo = (int) _db.insert("dispositivos", null, cv);
+                            cv.clear();
+
+                            cv.put("num_servicio", _idServicio);
+                            cv.put("id_dispositivo", _idDispositivo);
+                            _db.insert("servicio_inventario_dispositivos", null, cv);
+                            cv.clear();
+
+                            if(_itemSpinnerSeleccionado < 3){
+                                cv.put("id_elemento", _idElemento);
+                                cv.put("id_ram", _spnRAM.getSelectedItemPosition());
+                                cv.put("id_disco_duro", _spnDD.getSelectedItemPosition());
+                                cv.put("id_so", _spnSO.getSelectedItemPosition());
+                                _db.insert("computadoras", null, cv);
+                                cv.clear();
+                            }
+
+                            if (_rdBInstitucional.isChecked()){
+                                cv.put("id_dispositivo", _idDispositivo);
+                                if(_rdBSCambs.isChecked()){
+                                    cv.put("cambs", String.valueOf(_edtTCambs.getText()));
+                                }
+                                _db.insert("equipos_institucionales", null, cv);
+                                cv.clear();
+                            }
+
+                            if(_rdBSRed.isChecked()){
+                                cv.put("id_dispositivo", _idDispositivo);
+                                cv.put("mac", String.valueOf(_edtTMAC.getText()));
+                                if(_rdBIPEstatica.isChecked()){
+                                    cv.put("ip", String.valueOf(_edtTIP.getText()));
+                                }
+                                _db.insert("conexiones", null, cv);
+                            }
+
+                        } else{
+                            _db.update("inventario", cv, "id_elemento = ?", new String[]{_idElemento + ""});
+                            cv.clear();
+
+                            cv.put("id_tipo", _itemSpinnerSeleccionado);
+                            _db.update("dispositivos", cv, "id_elemento = ?", new String[]{_idElemento + ""});
+                            cv.clear();
+
+                            if(_rdBInstitucional.isChecked()){
+                                cv.put("id_dispositivo", _idDispositivo);
+                                if(_db.update("equipos_institucionales", cv, "id_dispositivo = ?", new String[]{_idDispositivo + ""}) == 0){
+                                    cv.put("id_dispositivo", _idDispositivo);
+                                    _db.insert("equipos_institucionales", null, cv);
+                                    cv.clear();
+                                }
+                                if(_rdBSCambs.isChecked()){
+                                    cv.put("cambs", String.valueOf(_edtTCambs.getText()));
+                                    _db.update("equipos_institucionales", cv, "id_dispositivo = ?", new String[]{_idDispositivo + ""});
+                                }
+                                cv.clear();
+                            } else{
+                                _db.delete("equipos_institucionales", "id_dispositivo = ?", new String[]{_idDispositivo + ""});
+                            }
+
+                            if(_itemSpinnerSeleccionado < 3){
+                                cv.put("id_ram", _spnRAM.getSelectedItemPosition());
+                                cv.put("id_disco_duro", _spnDD.getSelectedItemPosition());
+                                cv.put("id_so", _spnSO.getSelectedItemPosition());
+                                if(_db.update("computadoras", cv, "id_elemento = ?", new String[]{_idElemento + ""}) == 0){
+                                    cv.put("id_elemento", _idElemento);
+                                    _db.insert("computadoras", null, cv);
+                                }
+                                cv.clear();
+                            } else{
+                                _db.delete("computadoras", "id_elemento = ?", new String[]{_idElemento + ""});
+                            }
+
+                            if(_rdBSRed.isChecked()){
+                                cv.put("mac", String.valueOf(_edtTMAC.getText()));
+                                if(_rdBIPEstatica.isChecked()){
+                                    cv.put("ip", String.valueOf(_edtTIP.getText()));
+                                }
+                                if(_db.update("conexiones", cv, "id_dispositivo = ?", new String[]{_idDispositivo + ""}) == 0){
+                                    cv.put("id_dispositivo", _idDispositivo);
+                                    _db.insert("conexiones", null, cv);
+                                }
+                                cv.clear();
+                            } else{
+                                _db.delete("conexiones", "id_dispositivo = ?", new String[]{_idDispositivo + ""});
+                            }
+                        }
+                    }
+                }
+            } else{
+                Toast.makeText(this, "Seleccione un componente", Toast.LENGTH_LONG).show();
+                return;
+            }
+        } else{
+            _db.delete("servicio_inventario_dispositivos", "num_servicio = ?", new String[]{_idServicio + ""});
+        }
+        if(String.valueOf(_edtTMDescripcionServicio.getText()).equalsIgnoreCase("")){
+            Toast.makeText(this, "Describa el servicio realizado.", Toast.LENGTH_LONG).show();
+        } else{
+            cv.put("descripcion_servicio", String.valueOf(_edtTMDescripcionServicio.getText()));
+            _db.update("servicios", cv, "num_servicio = ?", new String[]{_idServicio + ""});
+            Toast.makeText(this, "Guardado exitoso.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void iniciarComponentes(){
+        //Todos los spinners
+
+        _spnDispositivo = findViewById(R.id.SpnDispositivo);//Spinner "Dispositivos"
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.dispositivos, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        _spnDispositivo.setAdapter(adapter);
+        _spnDispositivo.setOnItemSelectedListener(this);
+        _spnDispositivo.setVisibility(View.GONE);
+
+        _spnRAM = findViewById(R.id.SpnRAM);
+        adapter = ArrayAdapter.createFromResource(this, R.array.ram, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        _spnRAM.setAdapter(adapter);
+        _spnRAM.setOnItemSelectedListener(this);
+
+        _spnDD = findViewById(R.id.SpnDD);
+        adapter = ArrayAdapter.createFromResource(this, R.array.dd, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        _spnDD.setAdapter(adapter);
+        _spnDD.setOnItemSelectedListener(this);
+
+        _spnSO = findViewById(R.id.SpnSO);
+        adapter = ArrayAdapter.createFromResource(this, R.array.so, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        _spnSO.setAdapter(adapter);
+        _spnSO.setOnItemSelectedListener(this);
+
+        //CheckBox "¿Atiendes un dispositivo?
+
+        _chkBDispositivo = findViewById(R.id.ChkBDispositivo);
+        _chkBDispositivo.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if(b){
+                    _spnDispositivo.setVisibility(View.VISIBLE);//Revela Spinner
+                } else{
+                    _spnDispositivo.setSelection(0);
+                    _spnDispositivo.setVisibility(View.GONE);
+                    ocultarDefault();
+                    //_spnDispositivo.setVisibility(View.GONE);
                 }
             }
-        }
+        });
+
+        //Información génerica de dispositivos
+
+        _txtVMarca = findViewById(R.id.TxtVMarca);
+        _edtTMarca = findViewById(R.id.EdtTMarca);
+        _txtVModelo = findViewById(R.id.TxtVModelo);
+        _edtTModelo = findViewById(R.id.EdtTModelo);
+        _txtVNoSerie = findViewById(R.id.TxtVNoSerie);
+        _edtTNoSerie = findViewById(R.id.EdtTNoSerie);
+
+        //Sobre CAMBS
+
+        _txtVCambs = findViewById(R.id.TxtVCambs);
+        _edtTCambs = findViewById(R.id.EdtTCambs);
+        _cnsLCambs = findViewById(R.id.CnsLCambs);
+        _rdGCambs = findViewById(R.id.RdGCambs);
+        _rdGCambs.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                switch (i){
+                    case R.id.RdBSCambs:
+                        _txtVCambs.setVisibility(View.VISIBLE);
+                        _edtTCambs.setVisibility(View.VISIBLE);
+                        break;
+                    case R.id.RdBNCambs:
+                        _txtVCambs.setVisibility(View.GONE);
+                        _edtTCambs.setVisibility(View.GONE);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        });
+
+        //Constraint Layout que contiene radio botones "Personal" e "Institucional"
+
+        _cnsLRadioBotonesInstitucional = findViewById(R.id.CnsLRadioBotonesInstitucional);
+        _rdGTipoDispositivo = findViewById(R.id.RdGTipoDispositivo);
+        _rdGTipoDispositivo.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                switch (i){
+                    case R.id.RdBPersonal:
+                        _cnsLCambs.setVisibility(View.GONE);
+                        break;
+                    case R.id.RdBInstitucional:
+                        _cnsLCambs.setVisibility(View.VISIBLE);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        });
+        _rdBInstitucional = findViewById(R.id.RdBInstitucional);
+        _rdBPersonal = findViewById(R.id.RdBPersonal);
+        _rdBSCambs = findViewById(R.id.RdBSCambs);
+        _rdBNCambs = findViewById(R.id.RdBNCambs);
+
+        //Campos de IP
+
+        _txtVIP = findViewById(R.id.TxtVIP);
+        _edtTIP = findViewById(R.id.EdtTIP);
+        _txtVMAC = findViewById(R.id.TxtVMAC);
+        _edtTMAC = findViewById(R.id.EdtTMAC);
+
+        //Constraint Layout con radio botones "IP dinámica" e "IP estática"
+
+        _cnsLRadioBotonesIP = findViewById(R.id.CnsLRadioBotonesIP);
+        _rdGIP = findViewById(R.id.RdGIP);
+        _rdGIP.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                switch (i){
+                    case R.id.RdBIPEstatica:
+                        _txtVIP.setVisibility(View.VISIBLE);
+                        _edtTIP.setVisibility(View.VISIBLE);
+                        break;
+                    case R.id.RdBIPDinamica:
+                        _txtVIP.setVisibility(View.GONE);
+                        _edtTIP.setVisibility(View.GONE);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        });
+        _rdBIPEstatica = findViewById(R.id.RdBIPEstatica);
+        _rdBIPDinamica = findViewById(R.id.RdBIPDinamica);
+
+        //Constraint Layout con radio botones de red
+
+        _cnsLRed = findViewById(R.id.CnsLRed);
+        _rdGRed = findViewById(R.id.RdGRed);
+        _rdGRed.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                switch (i){
+                    case R.id.RdBSRed:
+                        _cnsLRadioBotonesIP.setVisibility(View.VISIBLE);
+                        _txtVMAC.setVisibility(View.VISIBLE);
+                        _edtTMAC.setVisibility(View.VISIBLE);
+                        break;
+                    case R.id.RdBNRed:
+                        _cnsLRadioBotonesIP.setVisibility(View.GONE);
+                        _txtVMAC.setVisibility(View.GONE);
+                        _edtTMAC.setVisibility(View.GONE);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        });
+
+        _rdBSRed = findViewById(R.id.RdBSRed);
+        _rdBNRed = findViewById(R.id.RdBNRed);
+
+        //Constraint de campos de PC
+
+        _cnsLRAMDD = findViewById(R.id.CnsLRamDD);
+        _txtVSO = findViewById(R.id.TxtVSO);
+
+        //Constraint de refacciones
+
+        _cnsLRefacciones = findViewById(R.id.CnsLRefacciones);
+        _rdGRefacciones = findViewById(R.id.RdGRefacciones);
+        _btnCapturaSN = findViewById(R.id.BtnCapturarSN);
+        _txtVDispositivo1 = findViewById(R.id.TxtVDispositivo1);
+        _edtTDispositivo1 = findViewById(R.id.EdtTDispositivo1);
+
+        //Descripcion del servicio
+
+        _edtTMDescripcionServicio = findViewById(R.id.EdtTMDescripcionServicio);
+
+        //Fotos
+
+        _btnTomarFoto = findViewById(R.id.BtnTomarFoto);
+        _cnsLEvidencia = findViewById(R.id.CnsLEvidencia);
+        _imgVEvidencia1 = findViewById(R.id.ImgVEvidencia1);
+        _imgVEvidencia2 = findViewById(R.id.ImgVEvidencia2);
+        _imgVEvidencia3 = findViewById(R.id.ImgVEvidencia3);
+        _imgVFirma = findViewById(R.id.ImgVFirma);
+
+        //Botones finales
+
+        _btnFinalizar = findViewById(R.id.BtnFinalizar);
+        _btnFinalizar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                guardarRegistro();
+                Intent intent = new Intent(getApplicationContext(), Firma.class);
+                intent.putExtra("numServicio", _idServicio);
+                intent.putExtra("descripcion", _descripcion);
+                startActivity(intent);
+                finish();
+            }
+        });
+        _btnGuardar = findViewById(R.id.BtnGuardar);
+        _btnGuardar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                guardarRegistro();
+            }
+        });
     }
 }

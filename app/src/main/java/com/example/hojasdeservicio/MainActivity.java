@@ -26,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
     private Button _btnCrearServicio;
     private TableLayout _tblLListaS;
     private SQLiteDatabase _db;
-    private final String _queryServicios = "SELECT servicios.num_servicio, lugares.lugar, servicios.fecha_ini, servicios.descripcion_servicio from servicios INNER JOIN lugares ON servicios.id_lugar = lugares.id_lugar";
+    private final String _queryServicios = "SELECT servicios.num_servicio, lugares.lugar, servicios.fecha_ini, servicios.descripcion_servicio, servicios.fecha_fin from servicios INNER JOIN lugares ON servicios.id_lugar = lugares.id_lugar ORDER BY servicios.num_servicio DESC";
     //private final String _prueba = "SELECT lugar from lugares";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,11 +67,11 @@ public class MainActivity extends AppCompatActivity {
                 try{
                     if(c != null){
                         while(c.moveToNext()){
-                            System.out.println("*******************************************");
                             int numServicio = c.getInt(0);
                             String lugar = c.getString(1);
-                            String fecha = c.getString(2);
+                            String fecha_ini = c.getString(2);
                             String descripcion = c.getString(3);
+                            String fecha_fin = c.getString(4);
                             TableRow fila = new TableRow(getApplicationContext());
                             fila.setOnClickListener(new View.OnClickListener() {
                                 @Override
@@ -79,15 +79,19 @@ public class MainActivity extends AppCompatActivity {
                                     Intent intent = new Intent(getApplicationContext(), Captura.class);
                                     intent.putExtra("numServicio", numServicio);
                                     intent.putExtra("descripcion", descripcion);
+                                    if(fecha_fin != null){
+                                        intent.putExtra("terminado", true);
+                                    }
                                     //intent.c
                                     startActivity(intent);
                                 }
                             });
+
                             TextView txtVlugar = new TextView(getApplicationContext());
                             float densidadPixeles = getApplicationContext().getResources().getDisplayMetrics().density;
                             float valorPaddingP = 10*densidadPixeles;
                             float valorHeight = 45*densidadPixeles;
-                            txtVlugar.setPadding(0, (int) valorPaddingP, 0, (int) valorPaddingP);
+                            txtVlugar.setPadding((int) valorPaddingP, (int) valorPaddingP, (int) valorPaddingP, (int) valorPaddingP);
                             txtVlugar.setHeight((int) valorHeight);
                             txtVlugar.setText(lugar);
                             txtVlugar.setTextSize(18);
@@ -96,51 +100,37 @@ public class MainActivity extends AppCompatActivity {
                             txtVlugar.setTextColor(Color.WHITE);
 
                             TextView txtVFecha = new TextView(getApplicationContext());
-                            txtVFecha.setPadding(0, (int) valorPaddingP, (int) valorPaddingP, (int) valorPaddingP);
+                            txtVFecha.setPadding((int) valorPaddingP, (int) valorPaddingP, (int) valorPaddingP, (int) valorPaddingP);
                             txtVFecha.setHeight((int) valorHeight);
-                            txtVFecha.setText(fecha);
+                            txtVFecha.setText(fecha_ini);
                             txtVFecha.setTextSize(18);
                             txtVFecha.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
                             txtVFecha.setBackgroundResource(R.drawable.top_bottom_border);
                             txtVFecha.setTextColor(Color.WHITE);
 
-
-                        /*TextView texto = new TextView(getApplicationContext());
-                        texto.setPadding(0, (int) valorPaddingP, 0, (int) valorPaddingP);
-                        texto.setHeight((int) valorHeight);
-                        texto.setText("AA");
-                        texto.setTextSize(18);
-                        texto.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
-                        texto.setBackgroundResource(R.drawable.top_bottom_border);
-                        texto.setTextColor(Color.WHITE);
-                        fila.addView(texto);
-                        */
-
                             fila.addView(txtVFecha);
                             fila.addView(txtVlugar);
-                            _tblLListaS.addView(fila);
+
+                            TableRow.LayoutParams params = new TableRow.LayoutParams(
+                                    TableRow.LayoutParams.MATCH_PARENT,
+                                    TableRow.LayoutParams.WRAP_CONTENT
+                            );
+                            params.setMargins(0, (int) 100, 0, (int) valorPaddingP);
+
+                            //fila.setLayoutParams(params);
+
+                            if(fecha_fin == null){
+                                fila.setBackgroundColor(Color.parseColor("#FFCC80"));
+                            } else{
+                                fila.setBackgroundColor(Color.parseColor("#92FD70"));
+                            }
+
+                            _tblLListaS.addView(fila, params);
                         }
                     }
                 } catch (Exception e){
                     Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
                 }
-                /*
-                try{
-                    if(c.getCount() > 0){
-                        c.moveToFirst();
-                        do {
-                            String lugar = c.getString(1);
-                            TableRow fila = new TableRow(getApplicationContext());
-                            EditText servicio = new EditText(getApplicationContext());
-                            servicio.setText(lugar);
-                            fila.addView(servicio);
-                            _tblLListaS.addView(fila);
-                        } while(c.moveToNext());
-                    }
-                } catch (Exception e){
-                    Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
-                }*/
-                //}
             }
         } catch (Exception e){
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
