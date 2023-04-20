@@ -62,6 +62,7 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
         //Ocultar al inicio y mostrar datos guardados
 
         ocultarDefault();
+
         if(!_servicioCreado){
             //Datos de servicio
             _descripcion = getIntent().getStringExtra("descripcion");
