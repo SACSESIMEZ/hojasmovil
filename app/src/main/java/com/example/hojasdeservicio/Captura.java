@@ -35,23 +35,18 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
     private Button _btnCapturaSN, _btnTomarFoto, _btnFinalizar, _btnGuardar;
     private ImageView _imgVEvidencia1, _imgVEvidencia2, _imgVEvidencia3, _imgVFirma;
     private ConstraintLayout _cnsLRAMDD, _cnsLRefacciones, _cnsLCambs, _cnsLRed, _cnsLEvidencia, _cnsLRadioBotonesInstitucional, _cnsLRadioBotonesIP;
-    private int _itemSpinnerSeleccionado, _idServicio, _idElemento, _idDispositivo, _idTipo;
+    private int _itemSpinnerSeleccionado, _numServicio, _idElemento, _idDispositivo, _idTipo;
     private boolean _servicioCreado, _servicioTerminado;
     private SQLiteDatabase _db;
     private DataBase _dbHelper;
     private String _descripcion;
+    private Servicio _servicio;
+    private Dispositivo _dispositivo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_captura);
-
-        _idServicio = getIntent().getIntExtra("numServicio", 0);
-        _idElemento = 0;
-        _idDispositivo = 0;
-        _idTipo = 0;
-        _servicioCreado = getIntent().getBooleanExtra("creado", false);
-        _servicioTerminado = getIntent().getBooleanExtra("terminado", false);
 
         iniciarComponentes();
 
@@ -59,15 +54,31 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
 
         _dbHelper = new DataBase(getApplicationContext());
 
+        _servicio = (Servicio) getIntent().getSerializableExtra("servicio");
+        _dispositivo = new Dispositivo(getApplicationContext());
+        _dispositivo.setIdDispositivo(_servicio.getIdDispositivo());
+        _dispositivo.setInformacion();
+        _numServicio = _servicio.getNumServicio();
+        _servicioCreado = getIntent().getBooleanExtra("creado", false);
+        _servicioTerminado = getIntent().getBooleanExtra("terminado", false);
+
+        _idElemento = 0;
+        _idDispositivo = 0;
+        _idTipo = 0;
+
         //Ocultar al inicio y mostrar datos guardados
 
         ocultarDefault();
 
-        if(!_servicioCreado){
+        Toast.makeText(this, _servicio.getNumServicio() + " numServicio", Toast.LENGTH_LONG).show();
+        Toast.makeText(this, _servicio.getIdDispositivo() + " idDispositivo", Toast.LENGTH_LONG).show();
+        Toast.makeText(this, _servicio.getContadorEvidencias() + " contador", Toast.LENGTH_LONG).show();
+
+        /*if(!_servicioCreado){
             //Datos de servicio
             _descripcion = getIntent().getStringExtra("descripcion");
 
-            if(_idServicio != 0){
+            if(_numServicio != 0){
                 if(servicioInventario()){
                     llenarInfoDispositivo();
                     _chkBDispositivo.setChecked(true);
@@ -85,7 +96,7 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
             _btnGuardar.setVisibility(View.GONE);
             bloquearEdicion();
             mostrarFirma();
-        }
+        }*/
     }
 
     private void ocultarDefault(){
@@ -144,7 +155,7 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
         _imgVFirma.setVisibility(View.VISIBLE);
         byte[] bFirma = null;
         _db = _dbHelper.getReadableDatabase();
-        Cursor c = _db.rawQuery("SELECT firma FROM servicios WHERE num_servicio = ?", new String[]{_idServicio + ""});
+        Cursor c = _db.rawQuery("SELECT firma FROM servicios WHERE num_servicio = ?", new String[]{_numServicio + ""});
         if(c != null){
             while(c.moveToNext()){
                 bFirma = c.getBlob(0);
@@ -205,7 +216,7 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
         boolean atiendeDispositivo = false;
         _db = _dbHelper.getReadableDatabase();
         if (_db != null) {
-            Cursor c = _db.rawQuery("SELECT dispositivos.id_elemento, dispositivos.id_dispositivo, dispositivos.id_tipo FROM servicio_inventario_dispositivos INNER JOIN dispositivos ON dispositivos.id_dispositivo = servicio_inventario_dispositivos.id_dispositivo WHERE num_servicio = ?", new String[]{_idServicio + ""});
+            Cursor c = _db.rawQuery("SELECT dispositivos.id_elemento, dispositivos.id_dispositivo, dispositivos.id_tipo FROM servicio_inventario_dispositivos INNER JOIN dispositivos ON dispositivos.id_dispositivo = servicio_inventario_dispositivos.id_dispositivo WHERE num_servicio = ?", new String[]{_numServicio + ""});
             if(c != null){
                 while(c.moveToNext()){
                     _idElemento = c.getInt(0);
@@ -305,7 +316,7 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
                             _idDispositivo = (int) _db.insert("dispositivos", null, cv);
                             cv.clear();
 
-                            cv.put("num_servicio", _idServicio);
+                            cv.put("num_servicio", _numServicio);
                             cv.put("id_dispositivo", _idDispositivo);
                             _db.insert("servicio_inventario_dispositivos", null, cv);
                             cv.clear();
@@ -395,13 +406,13 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
                 return;
             }
         } else{
-            _db.delete("servicio_inventario_dispositivos", "num_servicio = ?", new String[]{_idServicio + ""});
+            _db.delete("servicio_inventario_dispositivos", "num_servicio = ?", new String[]{_numServicio + ""});
         }
         if(String.valueOf(_edtTMDescripcionServicio.getText()).equalsIgnoreCase("")){
             Toast.makeText(this, "Describa el servicio realizado.", Toast.LENGTH_LONG).show();
         } else{
             cv.put("descripcion_servicio", String.valueOf(_edtTMDescripcionServicio.getText()));
-            _db.update("servicios", cv, "num_servicio = ?", new String[]{_idServicio + ""});
+            _db.update("servicios", cv, "num_servicio = ?", new String[]{_numServicio + ""});
             Toast.makeText(this, "Guardado exitoso.", Toast.LENGTH_SHORT).show();
         }
     }
@@ -600,7 +611,7 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
             public void onClick(View view) {
                 guardarRegistro();
                 Intent intent = new Intent(getApplicationContext(), Firma.class);
-                intent.putExtra("numServicio", _idServicio);
+                intent.putExtra("numServicio", _numServicio);
                 intent.putExtra("descripcion", _descripcion);
                 startActivity(intent);
                 finish();

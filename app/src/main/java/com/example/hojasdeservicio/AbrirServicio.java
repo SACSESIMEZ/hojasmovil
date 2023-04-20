@@ -44,6 +44,8 @@ public class AbrirServicio extends AppCompatActivity implements AdapterView.OnIt
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_abrir_servicio);
 
+        _dbHelper = new DataBase(this);
+
         _cnsLContenedor = findViewById(R.id.CnsLContenedor);
         _edtTCorreo = findViewById(R.id.EdtTCorreo);
         _edtTPersona = findViewById(R.id.EdtTPersona);
@@ -79,12 +81,7 @@ public class AbrirServicio extends AppCompatActivity implements AdapterView.OnIt
         set.applyTo(_cnsLContenedor);
         _edtTOtro.setVisibility(View.GONE);
 
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.lugares, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        _spnLugares.setAdapter(adapter);
-        _spnLugares.setOnItemSelectedListener(this);
-
-        _dbHelper = new DataBase(this);
+        llenarSpinnerLugares();
 
         _btnCrear.setOnClickListener(view -> {
             try {
@@ -93,35 +90,25 @@ public class AbrirServicio extends AppCompatActivity implements AdapterView.OnIt
                 if(_edtTOtro.getVisibility() == View.VISIBLE){
                     bandera = bandera && !String.valueOf(_edtTOtro.getText()).equals("");
                     _lugarSeleccionado = String.valueOf(_edtTOtro.getText());
-                    insertDB("lugar", _lugarSeleccionado.toUpperCase(), "lugares");
-                    Cursor c = selectDB("SELECT id_lugar FROM lugares WHERE lugar = ?", new String[]{_lugarSeleccionado.toUpperCase()});
-                    c.moveToNext();
-                    idLugar = c.getInt(0);
+                    idLugar = insertDB("lugar", _lugarSeleccionado.toUpperCase(), "lugares");
                 } else{
-                    idLugar = _itemSpinnerSeleccionado + 1;
+                    idLugar = _itemSpinnerSeleccionado;
                 }
                 if(bandera){
-                    long id = 0;
                     _db = _dbHelper.getWritableDatabase();
                     ContentValues cv = new ContentValues();
                     if(_db != null){
-                        cv.put("persona_reporta", String.valueOf(_edtTPersona.getText()));
-                        cv.put("correo_electronico", String.valueOf(_edtTCorreo.getText()));
-                        cv.put("descripcion_reporte", String.valueOf(_edtTMDescripcion.getText()));
                         Calendar cal = Calendar.getInstance();
                         Date date = new Date(cal.get(Calendar.YEAR) - 1900, cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH));
                         String fecha = DateFormat.format("yyyy-MM-dd", date).toString();
-                        cv.put("fecha_ini", fecha);
-                        cv.put("id_lugar", idLugar);
-
-                        id = _db.insert("servicios", null, cv);
+                        Servicio servicio = new Servicio(getApplicationContext());
+                        servicio.crear(String.valueOf(_edtTPersona.getText()), String.valueOf(_edtTCorreo.getText()), String.valueOf(_edtTMDescripcion.getText()), fecha, idLugar);
+                        Intent intent = new Intent(this, Captura.class);
+                        intent.putExtra("creado", true);
+                        intent.putExtra("servicio", servicio);
+                        startActivity(intent);
+                        finish();
                     }
-
-                    Intent intent = new Intent(this, Captura.class);
-                    intent.putExtra("creado", true);
-                    intent.putExtra("numServicio", id);
-                    startActivity(intent);
-                    finish();
                 } else{
                     Toast.makeText(this, "Complete todos los campos.", Toast.LENGTH_LONG).show();
                 }
@@ -136,7 +123,7 @@ public class AbrirServicio extends AppCompatActivity implements AdapterView.OnIt
         _itemSpinnerSeleccionado = adapterView.getSelectedItemPosition();
         int max = _spnLugares.getCount();
         //String item = String.valueOf(adapterView.getSelectedItem());
-        if(_itemSpinnerSeleccionado == 87){
+        if(_itemSpinnerSeleccionado == max){
             _edtTOtro.setVisibility(View.VISIBLE);
         } else {
             _edtTOtro.setVisibility(View.GONE);
@@ -148,47 +135,23 @@ public class AbrirServicio extends AppCompatActivity implements AdapterView.OnIt
 
     }
 
-    private Cursor selectDB(String query, String[] valores){
-        Cursor c = _db.rawQuery(query, valores);
-        return c;
-    }
-
-    private void insertDB(String columna, String valor, String tabla){
+    private int insertDB(String columna, String valor, String tabla){
+        int id = 0;
         _db = _dbHelper.getWritableDatabase();
         ContentValues cv = new ContentValues();
         if(_db != null){
             cv.put(columna, valor);
         }
-        _db.insert(tabla, null, cv);
+        id = (int) _db.insert(tabla, null, cv);
         cv.clear();
-    }
-
-    private void insertDB(String columna, int valor, String tabla){
-        _db = _dbHelper.getWritableDatabase();
-        ContentValues cv = new ContentValues();
-        if(_db != null){
-            cv.put(columna, valor);
-        }
-        _db.insert(tabla, null, cv);
-        cv.clear();
-    }
-
-    private void insertDB(String columna, String[] valores, String tabla){
-        _db = _dbHelper.getWritableDatabase();
-        ContentValues cv = new ContentValues();
-        if(_db != null){
-            for(String valor : valores){
-                cv.put(columna, valor);
-            }
-        }
-        _db.insert(tabla, null, cv);
-        cv.clear();
+        return id;
     }
 
     private void llenarSpinnerLugares(){
+        _db = _dbHelper.getReadableDatabase();
         List<String> listSpinner = new ArrayList<String>();
         listSpinner.add("Seleccione una opción");
-        Cursor c = selectDB("SELECT lugar from lugares", null);
+        Cursor c = _db.query("lugares", new String[]{"lugar"}, null, null, null, null, null);
         if(c != null){
             while(c.moveToNext()){
                 listSpinner.add(c.getString(0));

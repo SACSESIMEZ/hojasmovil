@@ -20,14 +20,15 @@ import android.widget.Toast;
 
 import org.w3c.dom.Text;
 
+import java.util.ArrayList;
+
 public class MainActivity extends AppCompatActivity {
 
     private String _nombre;
     private Button _btnCrearServicio;
     private TableLayout _tblLListaS;
     private SQLiteDatabase _db;
-    private final String _queryServicios = "SELECT servicios.num_servicio, lugares.lugar, servicios.fecha_ini, servicios.descripcion_servicio, servicios.fecha_fin from servicios INNER JOIN lugares ON servicios.id_lugar = lugares.id_lugar ORDER BY servicios.num_servicio DESC";
-    //private final String _prueba = "SELECT lugar from lugares";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,24 +63,21 @@ public class MainActivity extends AppCompatActivity {
             _db = dbHelper.getReadableDatabase();
 
             if(_db != null){
-                Cursor c = _db.rawQuery(_queryServicios, null);
-
+                Cursor c = _db.query("servicios", new String[]{"num_servicio"}, null, null, null, null, "num_servicio DESC");
                 try{
                     if(c != null){
                         while(c.moveToNext()){
                             int numServicio = c.getInt(0);
-                            String lugar = c.getString(1);
-                            String fecha_ini = c.getString(2);
-                            String descripcion = c.getString(3);
-                            String fecha_fin = c.getString(4);
+                            Servicio servicio = new Servicio(getApplicationContext());
+                            servicio.setNumServicio(numServicio);
+                            servicio.setInformacion();
                             TableRow fila = new TableRow(getApplicationContext());
                             fila.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View view) {
                                     Intent intent = new Intent(getApplicationContext(), Captura.class);
-                                    intent.putExtra("numServicio", numServicio);
-                                    intent.putExtra("descripcion", descripcion);
-                                    if(fecha_fin != null){
+                                    intent.putExtra("servicio", servicio);
+                                    if(servicio.getFechaFin() != null){
                                         intent.putExtra("terminado", true);
                                     }
                                     //intent.c
@@ -93,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
                             float valorHeight = 45*densidadPixeles;
                             txtVlugar.setPadding((int) valorPaddingP, (int) valorPaddingP, (int) valorPaddingP, (int) valorPaddingP);
                             txtVlugar.setHeight((int) valorHeight);
-                            txtVlugar.setText(lugar);
+                            txtVlugar.setText(servicio.getLugar());
                             txtVlugar.setTextSize(18);
                             txtVlugar.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
                             txtVlugar.setBackgroundResource(R.drawable.top_bottom_border);
@@ -102,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
                             TextView txtVFecha = new TextView(getApplicationContext());
                             txtVFecha.setPadding((int) valorPaddingP, (int) valorPaddingP, (int) valorPaddingP, (int) valorPaddingP);
                             txtVFecha.setHeight((int) valorHeight);
-                            txtVFecha.setText(fecha_ini);
+                            txtVFecha.setText(servicio.getFechaIni());
                             txtVFecha.setTextSize(18);
                             txtVFecha.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
                             txtVFecha.setBackgroundResource(R.drawable.top_bottom_border);
@@ -119,7 +117,7 @@ public class MainActivity extends AppCompatActivity {
 
                             //fila.setLayoutParams(params);
 
-                            if(fecha_fin == null){
+                            if(servicio.getFechaFin() == null){
                                 fila.setBackgroundColor(Color.parseColor("#FFCC80"));
                             } else{
                                 fila.setBackgroundColor(Color.parseColor("#92FD70"));
