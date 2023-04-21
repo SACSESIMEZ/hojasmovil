@@ -4,7 +4,9 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-public class Dispositivo {
+import java.io.Serializable;
+
+public class Dispositivo implements Serializable {
     private int _idDispositivo, _idElemento, _idComputadora, _idTipo, _idRam, _idDD, _idSO;
     private boolean _institucional, _conectado;
     private String _marca, _modelo, _numSerie, _ip, _mac, _cambs;

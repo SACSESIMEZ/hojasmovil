@@ -21,13 +21,14 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class AbrirServicio extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
+public class AbrirServicio extends AppCompatActivity implements AdapterView.OnItemSelectedListener, Serializable {
 
     private ConstraintLayout _cnsLContenedor;
     private EditText _edtTPersona, _edtTCorreo, _edtTMDescripcion, _edtTOtro;
@@ -52,6 +53,7 @@ public class AbrirServicio extends AppCompatActivity implements AdapterView.OnIt
         _edtTMDescripcion = findViewById(R.id.EdtTMDescripcion);
         _btnCrear = findViewById(R.id.BtnCrear);
         _spnLugares = findViewById(R.id.SpnLugares);
+        _spnLugares.setOnItemSelectedListener(this);
         _txtVPersona = findViewById(R.id.TxtVQuienReporta);
 
         ConstraintSet set = new ConstraintSet();
@@ -84,36 +86,36 @@ public class AbrirServicio extends AppCompatActivity implements AdapterView.OnIt
         llenarSpinnerLugares();
 
         _btnCrear.setOnClickListener(view -> {
-            try {
-                int idLugar = 0;
-                boolean bandera = !String.valueOf(_edtTPersona.getText()).equals("") && !String.valueOf(_edtTMDescripcion.getText()).equals("") && (_itemSpinnerSeleccionado != 0);
-                if(_edtTOtro.getVisibility() == View.VISIBLE){
-                    bandera = bandera && !String.valueOf(_edtTOtro.getText()).equals("");
-                    _lugarSeleccionado = String.valueOf(_edtTOtro.getText());
-                    idLugar = insertDB("lugar", _lugarSeleccionado.toUpperCase(), "lugares");
-                } else{
-                    idLugar = _itemSpinnerSeleccionado;
+            int idLugar = 0;
+            boolean bandera = !String.valueOf(_edtTPersona.getText()).equals("") && !String.valueOf(_edtTMDescripcion.getText()).equals("") && _itemSpinnerSeleccionado > 0;
+            Toast.makeText(this, "primeros campos " + bandera, Toast.LENGTH_SHORT).show();
+            if(_edtTOtro.getVisibility() == View.VISIBLE){
+                bandera = bandera && !String.valueOf(_edtTOtro.getText()).equals("");
+                _lugarSeleccionado = String.valueOf(_edtTOtro.getText());
+                Toast.makeText(this, "segundos campos " + bandera, Toast.LENGTH_SHORT).show();
+                idLugar = insertDB("lugar", _lugarSeleccionado.toUpperCase(), "lugares");
+                bandera = bandera && idLugar != -1;
+                Toast.makeText(this, "terceros campos " + bandera, Toast.LENGTH_SHORT).show();
+            } else{
+                idLugar = _itemSpinnerSeleccionado;
+            }
+            if(bandera){
+                _db = _dbHelper.getWritableDatabase();
+                ContentValues cv = new ContentValues();
+                if(_db != null){
+                    Calendar cal = Calendar.getInstance();
+                    Date date = new Date(cal.get(Calendar.YEAR) - 1900, cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH));
+                    String fecha = DateFormat.format("yyyy-MM-dd", date).toString();
+                    Servicio servicio = new Servicio(getApplicationContext());
+                    servicio.crear(String.valueOf(_edtTPersona.getText()), String.valueOf(_edtTCorreo.getText()), String.valueOf(_edtTMDescripcion.getText()), fecha, idLugar);
+                    Intent intent = new Intent(this, Captura.class);
+                    intent.putExtra("creado", true);
+                    intent.putExtra("servicio", servicio);
+                    startActivity(intent);
+                    finish();
                 }
-                if(bandera){
-                    _db = _dbHelper.getWritableDatabase();
-                    ContentValues cv = new ContentValues();
-                    if(_db != null){
-                        Calendar cal = Calendar.getInstance();
-                        Date date = new Date(cal.get(Calendar.YEAR) - 1900, cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH));
-                        String fecha = DateFormat.format("yyyy-MM-dd", date).toString();
-                        Servicio servicio = new Servicio(getApplicationContext());
-                        servicio.crear(String.valueOf(_edtTPersona.getText()), String.valueOf(_edtTCorreo.getText()), String.valueOf(_edtTMDescripcion.getText()), fecha, idLugar);
-                        Intent intent = new Intent(this, Captura.class);
-                        intent.putExtra("creado", true);
-                        intent.putExtra("servicio", servicio);
-                        startActivity(intent);
-                        finish();
-                    }
-                } else{
-                    Toast.makeText(this, "Complete todos los campos.", Toast.LENGTH_LONG).show();
-                }
-            } catch (Exception ex){
-                Toast.makeText(getApplicationContext(), ex.getMessage(), Toast.LENGTH_LONG).show();
+            } else{
+                Toast.makeText(this, "Complete todos los campos.", Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -121,7 +123,7 @@ public class AbrirServicio extends AppCompatActivity implements AdapterView.OnIt
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
         _itemSpinnerSeleccionado = adapterView.getSelectedItemPosition();
-        int max = _spnLugares.getCount();
+        int max = _spnLugares.getCount() - 1;
         //String item = String.valueOf(adapterView.getSelectedItem());
         if(_itemSpinnerSeleccionado == max){
             _edtTOtro.setVisibility(View.VISIBLE);
@@ -151,7 +153,7 @@ public class AbrirServicio extends AppCompatActivity implements AdapterView.OnIt
         _db = _dbHelper.getReadableDatabase();
         List<String> listSpinner = new ArrayList<String>();
         listSpinner.add("Seleccione una opción");
-        Cursor c = _db.query("lugares", new String[]{"lugar"}, null, null, null, null, null);
+        Cursor c = _db.query("lugares", new String[]{"lugar"}, null, null, null, null, "lugar ASC");
         if(c != null){
             while(c.moveToNext()){
                 listSpinner.add(c.getString(0));

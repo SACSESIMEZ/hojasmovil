@@ -24,6 +24,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.Serializable;
+
 public class Captura extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
     private EditText _edtTMarca, _edtTModelo, _edtTNoSerie, _edtTCambs, _edtTIP, _edtTMAC, _edtTDispositivo1, _edtTMDescripcionServicio;
@@ -50,29 +52,34 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
 
         iniciarComponentes();
 
-        //Conexión DB
+        try{
+            //Conexión DB
 
-        _dbHelper = new DataBase(getApplicationContext());
+            _dbHelper = new DataBase(getApplicationContext());
 
-        _servicio = (Servicio) getIntent().getSerializableExtra("servicio");
-        _dispositivo = new Dispositivo(getApplicationContext());
-        _dispositivo.setIdDispositivo(_servicio.getIdDispositivo());
-        _dispositivo.setInformacion();
-        _numServicio = _servicio.getNumServicio();
-        _servicioCreado = getIntent().getBooleanExtra("creado", false);
-        _servicioTerminado = getIntent().getBooleanExtra("terminado", false);
+            _servicio = (Servicio) getIntent().getSerializableExtra("servicio");
+            _dispositivo = new Dispositivo(getApplicationContext());
+            _dispositivo.setIdDispositivo(_servicio.getIdDispositivo());
+            _dispositivo.setInformacion();
+            _numServicio = _servicio.getNumServicio();
+            _servicioCreado = getIntent().getBooleanExtra("creado", false);
+            _servicioTerminado = getIntent().getBooleanExtra("terminado", false);
 
-        _idElemento = 0;
-        _idDispositivo = 0;
-        _idTipo = 0;
+            _idElemento = 0;
+            _idDispositivo = 0;
+            _idTipo = 0;
 
-        //Ocultar al inicio y mostrar datos guardados
+            //Ocultar al inicio y mostrar datos guardados
 
-        ocultarDefault();
+            ocultarDefault();
 
-        Toast.makeText(this, _servicio.getNumServicio() + " numServicio", Toast.LENGTH_LONG).show();
-        Toast.makeText(this, _servicio.getIdDispositivo() + " idDispositivo", Toast.LENGTH_LONG).show();
-        Toast.makeText(this, _servicio.getContadorEvidencias() + " contador", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, _servicio.getNumServicio() + " numServicio", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, _servicio.getIdDispositivo() + " idDispositivo", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, _servicio.getContadorEvidencias() + " contador", Toast.LENGTH_LONG).show();
+
+        } catch (Exception e){
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
 
         /*if(!_servicioCreado){
             //Datos de servicio

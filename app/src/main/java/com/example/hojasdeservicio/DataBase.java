@@ -6,12 +6,14 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import androidx.annotation.Nullable;
 
-public class DataBase extends SQLiteOpenHelper {
+import java.io.Serializable;
+
+public class DataBase extends SQLiteOpenHelper implements Serializable{
 
     private static final int _dbVersion = 1;
 
     private static final String _baseDatos = "servicio_movil";
-    private static final String _tablaLugares = "CREATE TABLE lugares(id_lugar INTEGER PRIMARY KEY AUTOINCREMENT, lugar TEXT NOT NULL)";
+    private static final String _tablaLugares = "CREATE TABLE lugares(id_lugar INTEGER PRIMARY KEY AUTOINCREMENT, lugar TEXT NOT NULL UNIQUE)";
     private static final String _tablaTipoElementos = "CREATE TABLE tipo_elementos(id_tipo INTEGER PRIMARY KEY AUTOINCREMENT, tipo TEXT NOT NULL)";
     private static final String _tablaServicios = "CREATE TABLE servicios(num_servicio INTEGER PRIMARY KEY AUTOINCREMENT, id_servicio INTEGER, id_lugar INTEGER NOT NULL, persona_reporta TEXT NOT NULL, correo_electronico TEXT NOT NULL, descripcion_reporte TEXT NOT NULL, descripcion_servicio TEXT, fecha_ini TEXT NOT NULL, fecha_fin TEXT, firma BLOB, FOREIGN KEY(id_lugar) REFERENCES lugares(id_lugar) ON DELETE CASCADE)";
     private static final String _tablaInventario = "CREATE TABLE inventario(id_elemento INTEGER PRIMARY KEY AUTOINCREMENT, marca TEXT, modelo TEXT, num_serie TEXT)";
