@@ -8,18 +8,21 @@ import android.database.sqlite.SQLiteDatabase;
 import java.io.Serializable;
 
 public class Servicio implements Serializable {
-    private int _numServicio, _idDispositivo, _contadorEvidencias;
+    private int _numServicio, _contadorEvidencias;
     private byte[][] _evidencias;
     private byte[] _firma;
+    private boolean _dispositivoServicio;
     private String _descripcionServicio, _fechaIni, _fechaFin, _lugar;
     private SQLiteDatabase _db;
     private DataBase _dbHelper;
+    private Dispositivo _dispositivo;
 
     public Servicio(Context context){
         _dbHelper = new DataBase(context);
+        _dispositivo = new Dispositivo(context);
+        _dispositivoServicio = false;
         _numServicio = 0;
         _contadorEvidencias = 0;
-        _idDispositivo = 0;
     }
 
     public int getNumServicio(){
@@ -63,7 +66,9 @@ public class Servicio implements Serializable {
             c = _db.query("servicio_inventario_dispositivos", new String[]{"id_dispositivo"}, "num_servicio = ?", new String[]{_numServicio + ""}, null, null, null);
             if(c != null){
                 while(c.moveToNext()){
-                    _idDispositivo = c.getInt(0);
+                    _dispositivo.setIdDispositivo(c.getInt(0));
+                    _dispositivo.setInformacion();
+                    _dispositivoServicio = true;
                 }
             }
             c = _db.query("evidencias", new String[]{"evidencia"}, "num_servicio = ?", new String[]{_numServicio + ""}, null, null, null);
@@ -76,23 +81,8 @@ public class Servicio implements Serializable {
         }
     }
 
-    public void crear(String persona, String correo, String descripcionReporte, String fechaIni, int idLugar){
-        _db = _dbHelper.getWritableDatabase();
-        ContentValues cv = new ContentValues();
-        cv.put("persona_reporta", persona);
-        cv.put("correo_electronico", correo);
-        cv.put("descripcion_reporte", descripcionReporte);
-        cv.put("fecha_ini", fechaIni);
-        cv.put("id_lugar", idLugar);
-        _numServicio = (int) _db.insert("servicios", null, cv);
-    }
-
     public int getContadorEvidencias() {
         return _contadorEvidencias;
-    }
-
-    public int getIdDispositivo(){
-        return _idDispositivo;
     }
 
     public String getFechaIni(){
@@ -105,5 +95,17 @@ public class Servicio implements Serializable {
 
     public String getLugar(){
         return _lugar;
+    }
+
+    public boolean isDispositivoServicio(){
+        return _dispositivoServicio;
+    }
+
+    public Dispositivo getDispositivo(){
+        return _dispositivo;
+    }
+
+    public void saveDispositivoServicio(){
+
     }
 }

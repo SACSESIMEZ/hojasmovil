@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteDatabase;
 
 import java.io.Serializable;
 
-public class Dispositivo implements Serializable {
+public class Dispositivo {
     private int _idDispositivo, _idElemento, _idComputadora, _idTipo, _idRam, _idDD, _idSO;
     private boolean _institucional, _conectado;
     private String _marca, _modelo, _numSerie, _ip, _mac, _cambs;
@@ -17,6 +17,7 @@ public class Dispositivo implements Serializable {
         _dbHelper = new DataBase(context);
         _idDispositivo = 0;
         _idElemento = 0;
+        _idComputadora = 0;
         _idTipo = 0;
         _idRam = 0;
         _idDD = 0;
@@ -37,6 +38,10 @@ public class Dispositivo implements Serializable {
 
     private void setIdTipo(int idTipo) {
         this._idTipo = idTipo;
+    }
+
+    public int getIdComputadora(){
+        return _idComputadora;
     }
 
     public int getIdRam() {

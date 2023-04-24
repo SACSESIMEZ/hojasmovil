@@ -65,20 +65,20 @@ public class MainActivity extends AppCompatActivity implements Serializable {
             _db = dbHelper.getReadableDatabase();
 
             if(_db != null){
-                Cursor c = _db.query("servicios", new String[]{"num_servicio"}, null, null, null, null, "num_servicio DESC");
+                Cursor c = _db.rawQuery("SELECT servicios.num_servicio, servicios.fecha_fin, servicios.fecha_ini, lugares.lugar FROM servicios INNER JOIN lugares ON servicios.id_lugar = lugares.id_lugar", null);
                 if(c != null){
                     while(c.moveToNext()){
                         int numServicio = c.getInt(0);
-                        Servicio servicio = new Servicio(getApplicationContext());
-                        servicio.setNumServicio(numServicio);
-                        servicio.setInformacion();
+                        String fechaFin = c.getString(1);
+                        String fechaIni = c.getString(2);
+                        String lugar = c.getString(3);
                         TableRow fila = new TableRow(getApplicationContext());
                         fila.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
                                 Intent intent = new Intent(getApplicationContext(), Captura.class);
-                                intent.putExtra("servicio", servicio);
-                                if(servicio.getFechaFin() != null){
+                                intent.putExtra("numServicio", numServicio);
+                                if(fechaFin != null){
                                     intent.putExtra("terminado", true);
                                 }
                                 startActivity(intent);
@@ -91,7 +91,7 @@ public class MainActivity extends AppCompatActivity implements Serializable {
                         float valorHeight = 45*densidadPixeles;
                         txtVlugar.setPadding((int) valorPaddingP, (int) valorPaddingP, (int) valorPaddingP, (int) valorPaddingP);
                         txtVlugar.setHeight((int) valorHeight);
-                        txtVlugar.setText(servicio.getLugar());
+                        txtVlugar.setText(lugar);
                         txtVlugar.setTextSize(18);
                         txtVlugar.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
                         txtVlugar.setBackgroundResource(R.drawable.top_bottom_border);
@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity implements Serializable {
                         TextView txtVFecha = new TextView(getApplicationContext());
                         txtVFecha.setPadding((int) valorPaddingP, (int) valorPaddingP, (int) valorPaddingP, (int) valorPaddingP);
                         txtVFecha.setHeight((int) valorHeight);
-                        txtVFecha.setText(servicio.getFechaIni());
+                        txtVFecha.setText(fechaIni);
                         txtVFecha.setTextSize(18);
                         txtVFecha.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
                         txtVFecha.setBackgroundResource(R.drawable.top_bottom_border);
@@ -117,7 +117,7 @@ public class MainActivity extends AppCompatActivity implements Serializable {
 
                         //fila.setLayoutParams(params);
 
-                        if(servicio.getFechaFin() == null){
+                        if(fechaFin == null){
                             fila.setBackgroundColor(Color.parseColor("#FFCC80"));
                         } else{
                             fila.setBackgroundColor(Color.parseColor("#92FD70"));

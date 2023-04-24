@@ -106,11 +106,10 @@ public class AbrirServicio extends AppCompatActivity implements AdapterView.OnIt
                     Calendar cal = Calendar.getInstance();
                     Date date = new Date(cal.get(Calendar.YEAR) - 1900, cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH));
                     String fecha = DateFormat.format("yyyy-MM-dd", date).toString();
-                    Servicio servicio = new Servicio(getApplicationContext());
-                    servicio.crear(String.valueOf(_edtTPersona.getText()), String.valueOf(_edtTCorreo.getText()), String.valueOf(_edtTMDescripcion.getText()), fecha, idLugar);
+                    int numServicio = crear(String.valueOf(_edtTPersona.getText()), String.valueOf(_edtTCorreo.getText()), String.valueOf(_edtTMDescripcion.getText()), fecha, idLugar);
                     Intent intent = new Intent(this, Captura.class);
                     intent.putExtra("creado", true);
-                    intent.putExtra("servicio", servicio);
+                    intent.putExtra("numServicio", numServicio);
                     startActivity(intent);
                     finish();
                 }
@@ -118,6 +117,17 @@ public class AbrirServicio extends AppCompatActivity implements AdapterView.OnIt
                 Toast.makeText(this, "Complete todos los campos.", Toast.LENGTH_LONG).show();
             }
         });
+    }
+
+    public int crear(String persona, String correo, String descripcionReporte, String fechaIni, int idLugar){
+        _db = _dbHelper.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put("persona_reporta", persona);
+        cv.put("correo_electronico", correo);
+        cv.put("descripcion_reporte", descripcionReporte);
+        cv.put("fecha_ini", fechaIni);
+        cv.put("id_lugar", idLugar);
+        return (int) _db.insert("servicios", null, cv);
     }
 
     @Override
