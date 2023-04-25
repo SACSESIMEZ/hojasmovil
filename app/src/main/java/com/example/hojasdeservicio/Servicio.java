@@ -104,8 +104,4 @@ public class Servicio implements Serializable {
     public Dispositivo getDispositivo(){
         return _dispositivo;
     }
-
-    public void saveDispositivoServicio(){
-
-    }
 }

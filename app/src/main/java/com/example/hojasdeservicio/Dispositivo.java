@@ -1,5 +1,6 @@
 package com.example.hojasdeservicio;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -88,7 +89,7 @@ public class Dispositivo {
         return _marca;
     }
 
-    private void setMarca(String marca) {
+    public void setMarca(String marca) {
         this._marca = marca;
     }
 
@@ -96,7 +97,7 @@ public class Dispositivo {
         return _modelo;
     }
 
-    private void setModelo(String modelo) {
+    public void setModelo(String modelo) {
         this._modelo = modelo;
     }
 
@@ -104,7 +105,7 @@ public class Dispositivo {
         return _numSerie;
     }
 
-    private void setNumSerie(String numSerie) {
+    public void setNumSerie(String numSerie) {
         this._numSerie = numSerie;
     }
 

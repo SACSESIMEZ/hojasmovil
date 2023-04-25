@@ -37,7 +37,7 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
     private Button _btnCapturaSN, _btnTomarFoto, _btnFinalizar, _btnGuardar;
     private ImageView _imgVEvidencia1, _imgVEvidencia2, _imgVEvidencia3, _imgVFirma;
     private ConstraintLayout _cnsLRAMDD, _cnsLRefacciones, _cnsLCambs, _cnsLRed, _cnsLEvidencia, _cnsLRadioBotonesInstitucional, _cnsLRadioBotonesIP;
-    private int _itemSpinnerSeleccionado, _numServicio, _idElemento, _idDispositivo, _idTipo;
+    private int _itemSpinnerSeleccionado, _numServicio;
     private boolean _servicioCreado, _servicioTerminado;
     private SQLiteDatabase _db;
     private DataBase _dbHelper;
@@ -66,10 +66,6 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
         _servicio = new Servicio(this);
         _servicio.setNumServicio(_numServicio);
         _servicio.setInformacion();
-
-        _idElemento = 0;
-        _idDispositivo = 0;
-        _idTipo = 0;
 
         //Ocultar al inicio y mostrar datos guardados
 
@@ -130,9 +126,32 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
     }
 
     private void guardarCambios(){
+        int idDispositivo = buscarDispositivo();
         if(_chkBDispositivo.isChecked()){
-           _servicio.
+
         }
+    }
+
+    private int buscarDispositivo(){
+        int idElemento = 0, idDispositivo = 0;
+        _db = _dbHelper.getReadableDatabase();
+        if(_db != null){
+            Cursor c = _db.query("inventario", null, "num_serie = ?", new String[]{String.valueOf(_edtTNoSerie.getText())}, null, null, null);
+            if(c != null){
+                while (c.moveToNext()){
+                    idElemento = c.getInt(0);
+                }
+            }
+            if(idElemento != 0){
+                c = _db.query("dispositivos", null, "id_elemento = ?", new String[]{idElemento + ""}, null, null, null);
+                if(c != null){
+                    while(c.moveToNext()){
+                        idDispositivo = c.getInt(0);
+                    }
+                }
+            }
+        }
+        return idDispositivo;
     }
 
     private void ocultarDefault(){
@@ -227,25 +246,6 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
         _btnTomarFoto.setEnabled(false);
         _btnGuardar.setEnabled(false);
         _btnFinalizar.setEnabled(false);
-    }
-
-    @Override
-    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-        switch (adapterView.getId()){
-            case R.id.SpnDispositivo:
-                _itemSpinnerSeleccionado = adapterView.getSelectedItemPosition();
-                if(_itemSpinnerSeleccionado != 0){
-                    mostrarInformacionDispositivos();
-                } else{
-                    ocultarDefault();
-                }
-                break;
-        }
-    }
-
-    @Override
-    public void onNothingSelected(AdapterView<?> adapterView) {
-        ocultarDefault();
     }
 
     private boolean servicioInventario() {
@@ -606,5 +606,24 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
                 guardarRegistro();
             }
         });
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+        switch (adapterView.getId()){
+            case R.id.SpnDispositivo:
+                _itemSpinnerSeleccionado = adapterView.getSelectedItemPosition();
+                if(_itemSpinnerSeleccionado != 0){
+                    mostrarInformacionDispositivos();
+                } else{
+                    ocultarDefault();
+                }
+                break;
+        }
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> adapterView) {
+        ocultarDefault();
     }
 }
