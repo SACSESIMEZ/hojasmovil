@@ -133,7 +133,7 @@ public class Dispositivo {
         this._cambs = cambs;
     }
 
-    public void setInformacion(){
+    public void buscarInformacion(){
         _db = _dbHelper.getReadableDatabase();
         if(_db != null){
             Cursor c = _db.query("dispositivos", new String[]{"id_elemento, id_tipo"}, "id_dispositivo = ?", new String[]{_idDispositivo + ""}, null, null, null);

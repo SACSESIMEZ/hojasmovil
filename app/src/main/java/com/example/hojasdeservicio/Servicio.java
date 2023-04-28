@@ -45,7 +45,7 @@ public class Servicio implements Serializable {
         _numServicio = numServicio;
     }
 
-    public void setInformacion(){
+    public void buscarInformacion(){
         _db = _dbHelper.getReadableDatabase();
         if(_db != null){
             Cursor c = _db.query("servicios", new String[]{"descripcion_servicio", "fecha_ini", "fecha_fin", "firma"}, "num_servicio = ?", new String[]{_numServicio + ""}, null, null, null);
@@ -67,13 +67,14 @@ public class Servicio implements Serializable {
             if(c != null){
                 while(c.moveToNext()){
                     _dispositivo.setIdDispositivo(c.getInt(0));
-                    _dispositivo.setInformacion();
+                    _dispositivo.buscarInformacion();
                     _dispositivoServicio = true;
                 }
             }
             c = _db.query("evidencias", new String[]{"evidencia"}, "num_servicio = ?", new String[]{_numServicio + ""}, null, null, null);
             if(c != null){
                 while(c.moveToNext()){
+                    _evidencias[_contadorEvidencias] = c.getBlob(0);
                     _evidencias[_contadorEvidencias] = c.getBlob(0);
                     _contadorEvidencias++;
                 }
@@ -103,5 +104,9 @@ public class Servicio implements Serializable {
 
     public Dispositivo getDispositivo(){
         return _dispositivo;
+    }
+
+    public void setDispositivo(int idDispositivo){
+
     }
 }

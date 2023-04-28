@@ -65,7 +65,7 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
 
         _servicio = new Servicio(this);
         _servicio.setNumServicio(_numServicio);
-        _servicio.setInformacion();
+        _servicio.buscarInformacion();
 
         //Ocultar al inicio y mostrar datos guardados
 
@@ -78,6 +78,7 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
                 mostrarInformacionDispositivos();
                 llenarInfoDispositivo();
             }
+            _edtTMDescripcionServicio.setText(_servicio.getDescripcionServicio());
         }
 
         /*if(_servicioTerminado){
@@ -122,13 +123,18 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
             _spnSO.setSelection(_servicio.getDispositivo().getIdSO());
             _spnDD.setSelection(_servicio.getDispositivo().getIdDD());
         }
-        _edtTMDescripcionServicio.setText(_servicio.getDescripcionServicio());
     }
 
     private void guardarCambios(){
         int idDispositivo = buscarDispositivo();
         if(_chkBDispositivo.isChecked()){
+            if(_servicio.isDispositivoServicio()){
 
+            } else{
+                if(buscarDispositivo() ){
+
+                }
+            }
         }
     }
 
