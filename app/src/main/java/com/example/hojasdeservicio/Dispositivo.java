@@ -37,8 +37,12 @@ public class Dispositivo {
         return _idTipo;
     }
 
-    private void setIdTipo(int idTipo) {
+    public void setIdTipo(int idTipo) {
         this._idTipo = idTipo;
+        _db = _dbHelper.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put("id_tipo", idTipo);
+        _db.update("dispositivos", cv, "id_dispositivo = ?", new String[]{_idDispositivo + ""});
     }
 
     public int getIdComputadora(){
@@ -73,24 +77,50 @@ public class Dispositivo {
         return _institucional;
     }
 
-    private void setInstitucional(boolean institucional) {
+    public void setInstitucional(boolean institucional) {
         this._institucional = institucional;
+        _db = _dbHelper.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put("id_dispositivo", _idDispositivo);
+        _db.insert("equipos_institucionales", null, cv);
     }
 
     public boolean isConectado() {
         return _conectado;
     }
 
-    private void setConectado(boolean conectado) {
+    public void setConectado(boolean conectado, String mac) {
         this._conectado = conectado;
+        this._mac = mac;
+        _db = _dbHelper.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put("id_dispositivo", _idDispositivo);
+        cv.put("mac", mac);
+        _db.insert("conexiones", null, cv);
     }
 
     public String getMarca() {
         return _marca;
     }
 
-    public void setMarca(String marca) {
+    public boolean setMarca(String marca) {
         this._marca = marca;
+        _db = _dbHelper.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put("marca", marca);
+        return _db.update("inventario", cv, "id_dispositivo = ?", new String[]{_idDispositivo + ""}) != 0;
+    }
+
+    public boolean setInventario(String marca, String modelo, String numSerie){
+        this._marca = marca;
+        this._modelo = modelo;
+        this._numSerie = numSerie;
+        _db = _dbHelper.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put("marca", marca);
+        cv.put("modelo", modelo);
+        cv.put("num_serie", numSerie);
+        return _db.update("inventario", cv, "id_elemento = ?", new String[]{_idElemento + ""}) != 0;
     }
 
     public String getModelo() {
@@ -113,24 +143,36 @@ public class Dispositivo {
         return _ip;
     }
 
-    private void setIp(String ip) {
+    public void setIp(String ip) {
         this._ip = ip;
+        _db = _dbHelper.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put("ip", ip);
+        _db.update("conexiones", cv, "id_dispositivo = ?", new String[]{_idDispositivo + ""});
     }
 
     public String getMac() {
         return _mac;
     }
 
-    private void setMac(String mac) {
+    public void setMac(String mac) {
         this._mac = mac;
+        _db = _dbHelper.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put("mac", mac);
+        _db.update("conexiones", cv, "id_dispositivo = ?", new String[]{_idDispositivo + ""});
     }
 
     public String getCambs() {
         return _cambs;
     }
 
-    private void setCambs(String cambs) {
+    public void setCambs(String cambs) {
         this._cambs = cambs;
+        _db = _dbHelper.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put("cambs", cambs);
+        _db.update("equipos_institucionales", cv, "id_dispositivo = ?", new String[]{_idDispositivo + ""});
     }
 
     public void buscarInformacion(){

@@ -107,6 +107,8 @@ public class Servicio implements Serializable {
     }
 
     public void setDispositivo(int idDispositivo){
-
+        _dispositivo.setIdDispositivo(idDispositivo);
+        _dispositivo.buscarInformacion();
+        _dispositivoServicio = true;
     }
 }
