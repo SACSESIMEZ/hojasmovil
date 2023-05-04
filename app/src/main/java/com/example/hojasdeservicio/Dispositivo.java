@@ -49,28 +49,50 @@ public class Dispositivo {
         return _idComputadora;
     }
 
+    public void setIdComputadora(int idRam, int idDD, int idSO){
+        _db = _dbHelper.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put("id_elemento", _idElemento);
+        cv.put("id_ram", idRam);
+        cv.put("id_disco_duro", idDD);
+        cv.put("id_so", idSO);
+        _idComputadora = (int) _db.insert("computadoras", null, cv);
+    }
+
     public int getIdRam() {
         return _idRam;
     }
 
-    private void setIdRam(int idRam) {
+    public void setIdRam(int idRam) {
         this._idRam = idRam;
+        _db = _dbHelper.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put("id_ram", idRam);
+        _db.update("computadoras", cv, "id_elemento = ?", new String[]{_idElemento + ""});
     }
 
     public int getIdDD() {
         return _idDD;
     }
 
-    private void setIdDD(int idDD) {
+    public void setIdDD(int idDD) {
         this._idDD = idDD;
+        _db = _dbHelper.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put("id_disco_duro", idDD);
+        _db.update("computadoras", cv, "id_elemento = ?", new String[]{_idElemento + ""});
     }
 
     public int getIdSO() {
         return _idSO;
     }
 
-    private void setIdSO(int idSO) {
+    public void setIdSO(int idSO) {
         this._idSO = idSO;
+        _db = _dbHelper.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put("id_so", idSO);
+        _db.update("computadoras", cv, "id_elemento = ?", new String[]{_idElemento + ""});
     }
 
     public boolean isInstitucional() {

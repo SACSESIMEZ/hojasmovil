@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity implements Serializable {
             _db = dbHelper.getReadableDatabase();
 
             if(_db != null){
-                Cursor c = _db.rawQuery("SELECT servicios.num_servicio, servicios.fecha_fin, servicios.fecha_ini, lugares.lugar FROM servicios INNER JOIN lugares ON servicios.id_lugar = lugares.id_lugar", null);
+                Cursor c = _db.rawQuery("SELECT servicios.num_servicio, servicios.fecha_fin, servicios.fecha_ini, lugares.lugar FROM servicios INNER JOIN lugares ON servicios.id_lugar = lugares.id_lugar ORDER BY servicios.num_servicio DESC", null);
                 if(c != null){
                     while(c.moveToNext()){
                         int numServicio = c.getInt(0);

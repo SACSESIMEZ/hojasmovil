@@ -21,6 +21,7 @@ public class Servicio implements Serializable {
         _dbHelper = new DataBase(context);
         _dispositivo = new Dispositivo(context);
         _dispositivoServicio = false;
+        _evidencias = new byte[3][];
         _numServicio = 0;
         _contadorEvidencias = 0;
     }
@@ -33,8 +34,25 @@ public class Servicio implements Serializable {
         return _descripcionServicio;
     }
 
+    public void setDescripcionServicio(String descripcionServicio){
+        this._descripcionServicio = descripcionServicio;
+        _db = _dbHelper.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put("descripcion_servicio", descripcionServicio);
+        _db.update("servicios", cv, "num_servicio = ?", new String[]{_numServicio + ""});
+    }
+
     public byte[] getEvidencias(int evidencia){
         return _evidencias[evidencia];
+    }
+
+    public void setEvidencias(byte[] evidencia, int num){
+        _db = _dbHelper.getWritableDatabase();
+        _evidencias[num] = evidencia;
+        ContentValues cv = new ContentValues();
+        cv.put("num_servicio", _numServicio);
+        cv.put("evidencia", evidencia);
+        _db.insert("evidencias", null, cv);
     }
 
     public byte[] getFirma(){
@@ -75,7 +93,6 @@ public class Servicio implements Serializable {
             if(c != null){
                 while(c.moveToNext()){
                     _evidencias[_contadorEvidencias] = c.getBlob(0);
-                    _evidencias[_contadorEvidencias] = c.getBlob(0);
                     _contadorEvidencias++;
                 }
             }
@@ -84,6 +101,10 @@ public class Servicio implements Serializable {
 
     public int getContadorEvidencias() {
         return _contadorEvidencias;
+    }
+
+    public void incrementContadorEvidencias(){
+        _contadorEvidencias++;
     }
 
     public String getFechaIni(){
@@ -107,8 +128,18 @@ public class Servicio implements Serializable {
     }
 
     public void setDispositivo(int idDispositivo){
+        _db = _dbHelper.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put("num_servicio", _numServicio);
+        cv.put("id_dispositivo", idDispositivo);
+        _db.insert("servicio_inventario_dispositivos", null, cv);
         _dispositivo.setIdDispositivo(idDispositivo);
         _dispositivo.buscarInformacion();
         _dispositivoServicio = true;
+    }
+
+    public void removeDispositivo(Context context){
+        _dispositivo = null;
+        _dispositivo = new Dispositivo(context);
     }
 }
