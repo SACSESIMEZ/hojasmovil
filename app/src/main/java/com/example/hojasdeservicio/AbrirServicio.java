@@ -21,13 +21,14 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class AbrirServicio extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
+public class AbrirServicio extends AppCompatActivity implements AdapterView.OnItemSelectedListener, Serializable {
 
     private ConstraintLayout _cnsLContenedor;
     private EditText _edtTPersona, _edtTCorreo, _edtTMDescripcion, _edtTOtro;
@@ -44,12 +45,15 @@ public class AbrirServicio extends AppCompatActivity implements AdapterView.OnIt
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_abrir_servicio);
 
+        _dbHelper = new DataBase(this);
+
         _cnsLContenedor = findViewById(R.id.CnsLContenedor);
         _edtTCorreo = findViewById(R.id.EdtTCorreo);
         _edtTPersona = findViewById(R.id.EdtTPersona);
         _edtTMDescripcion = findViewById(R.id.EdtTMDescripcion);
         _btnCrear = findViewById(R.id.BtnCrear);
         _spnLugares = findViewById(R.id.SpnLugares);
+        _spnLugares.setOnItemSelectedListener(this);
         _txtVPersona = findViewById(R.id.TxtVQuienReporta);
 
         ConstraintSet set = new ConstraintSet();
@@ -79,64 +83,59 @@ public class AbrirServicio extends AppCompatActivity implements AdapterView.OnIt
         set.applyTo(_cnsLContenedor);
         _edtTOtro.setVisibility(View.GONE);
 
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.lugares, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        _spnLugares.setAdapter(adapter);
-        _spnLugares.setOnItemSelectedListener(this);
-
-        _dbHelper = new DataBase(this);
+        llenarSpinnerLugares();
 
         _btnCrear.setOnClickListener(view -> {
-            try {
-                int idLugar = 0;
-                boolean bandera = !String.valueOf(_edtTPersona.getText()).equals("") && !String.valueOf(_edtTMDescripcion.getText()).equals("") && (_itemSpinnerSeleccionado != 0);
-                if(_edtTOtro.getVisibility() == View.VISIBLE){
-                    bandera = bandera && !String.valueOf(_edtTOtro.getText()).equals("");
-                    _lugarSeleccionado = String.valueOf(_edtTOtro.getText());
-                    insertDB("lugar", _lugarSeleccionado.toUpperCase(), "lugares");
-                    Cursor c = selectDB("SELECT id_lugar FROM lugares WHERE lugar = ?", new String[]{_lugarSeleccionado.toUpperCase()});
-                    c.moveToNext();
-                    idLugar = c.getInt(0);
-                } else{
-                    idLugar = _itemSpinnerSeleccionado + 1;
-                }
-                if(bandera){
-                    long id = 0;
-                    _db = _dbHelper.getWritableDatabase();
-                    ContentValues cv = new ContentValues();
-                    if(_db != null){
-                        cv.put("persona_reporta", String.valueOf(_edtTPersona.getText()));
-                        cv.put("correo_electronico", String.valueOf(_edtTCorreo.getText()));
-                        cv.put("descripcion_reporte", String.valueOf(_edtTMDescripcion.getText()));
-                        Calendar cal = Calendar.getInstance();
-                        Date date = new Date(cal.get(Calendar.YEAR) - 1900, cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH));
-                        String fecha = DateFormat.format("yyyy-MM-dd", date).toString();
-                        cv.put("fecha_ini", fecha);
-                        cv.put("id_lugar", idLugar);
-
-                        id = _db.insert("servicios", null, cv);
-                    }
-
+            int idLugar = 0;
+            boolean bandera = !String.valueOf(_edtTPersona.getText()).equals("") && !String.valueOf(_edtTMDescripcion.getText()).equals("") && _itemSpinnerSeleccionado > 0;
+            Toast.makeText(this, "primeros campos " + bandera, Toast.LENGTH_SHORT).show();
+            if(_edtTOtro.getVisibility() == View.VISIBLE){
+                bandera = bandera && !String.valueOf(_edtTOtro.getText()).equals("");
+                _lugarSeleccionado = String.valueOf(_edtTOtro.getText());
+                Toast.makeText(this, "segundos campos " + bandera, Toast.LENGTH_SHORT).show();
+                idLugar = insertDB("lugar", _lugarSeleccionado.toUpperCase(), "lugares");
+                bandera = bandera && idLugar != -1;
+                Toast.makeText(this, "terceros campos " + bandera, Toast.LENGTH_SHORT).show();
+            } else{
+                idLugar = _itemSpinnerSeleccionado;
+            }
+            if(bandera){
+                _db = _dbHelper.getWritableDatabase();
+                ContentValues cv = new ContentValues();
+                if(_db != null){
+                    Calendar cal = Calendar.getInstance();
+                    Date date = new Date(cal.get(Calendar.YEAR) - 1900, cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH));
+                    String fecha = DateFormat.format("yyyy-MM-dd", date).toString();
+                    int numServicio = crear(String.valueOf(_edtTPersona.getText()), String.valueOf(_edtTCorreo.getText()), String.valueOf(_edtTMDescripcion.getText()), fecha, idLugar);
                     Intent intent = new Intent(this, Captura.class);
                     intent.putExtra("creado", true);
-                    intent.putExtra("numServicio", id);
+                    intent.putExtra("numServicio", numServicio);
                     startActivity(intent);
                     finish();
-                } else{
-                    Toast.makeText(this, "Complete todos los campos.", Toast.LENGTH_LONG).show();
                 }
-            } catch (Exception ex){
-                Toast.makeText(getApplicationContext(), ex.getMessage(), Toast.LENGTH_LONG).show();
+            } else{
+                Toast.makeText(this, "Complete todos los campos.", Toast.LENGTH_LONG).show();
             }
         });
+    }
+
+    public int crear(String persona, String correo, String descripcionReporte, String fechaIni, int idLugar){
+        _db = _dbHelper.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put("persona_reporta", persona);
+        cv.put("correo_electronico", correo);
+        cv.put("descripcion_reporte", descripcionReporte);
+        cv.put("fecha_ini", fechaIni);
+        cv.put("id_lugar", idLugar);
+        return (int) _db.insert("servicios", null, cv);
     }
 
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
         _itemSpinnerSeleccionado = adapterView.getSelectedItemPosition();
-        int max = _spnLugares.getCount();
+        int max = _spnLugares.getCount() - 1;
         //String item = String.valueOf(adapterView.getSelectedItem());
-        if(_itemSpinnerSeleccionado == 87){
+        if(_itemSpinnerSeleccionado == max){
             _edtTOtro.setVisibility(View.VISIBLE);
         } else {
             _edtTOtro.setVisibility(View.GONE);
@@ -148,47 +147,23 @@ public class AbrirServicio extends AppCompatActivity implements AdapterView.OnIt
 
     }
 
-    private Cursor selectDB(String query, String[] valores){
-        Cursor c = _db.rawQuery(query, valores);
-        return c;
-    }
-
-    private void insertDB(String columna, String valor, String tabla){
+    private int insertDB(String columna, String valor, String tabla){
+        int id = 0;
         _db = _dbHelper.getWritableDatabase();
         ContentValues cv = new ContentValues();
         if(_db != null){
             cv.put(columna, valor);
         }
-        _db.insert(tabla, null, cv);
+        id = (int) _db.insert(tabla, null, cv);
         cv.clear();
-    }
-
-    private void insertDB(String columna, int valor, String tabla){
-        _db = _dbHelper.getWritableDatabase();
-        ContentValues cv = new ContentValues();
-        if(_db != null){
-            cv.put(columna, valor);
-        }
-        _db.insert(tabla, null, cv);
-        cv.clear();
-    }
-
-    private void insertDB(String columna, String[] valores, String tabla){
-        _db = _dbHelper.getWritableDatabase();
-        ContentValues cv = new ContentValues();
-        if(_db != null){
-            for(String valor : valores){
-                cv.put(columna, valor);
-            }
-        }
-        _db.insert(tabla, null, cv);
-        cv.clear();
+        return id;
     }
 
     private void llenarSpinnerLugares(){
+        _db = _dbHelper.getReadableDatabase();
         List<String> listSpinner = new ArrayList<String>();
         listSpinner.add("Seleccione una opción");
-        Cursor c = selectDB("SELECT lugar from lugares", null);
+        Cursor c = _db.query("lugares", new String[]{"lugar"}, null, null, null, null, "lugar ASC");
         if(c != null){
             while(c.moveToNext()){
                 listSpinner.add(c.getString(0));

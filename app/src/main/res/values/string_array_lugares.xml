@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="lugares">
-        <item>Seleccione un opción</item>
         <item>ACTIVIDADES DEPORTIVAS</item>
         <item>ACUSTICA</item>
         <item>ALMACEN</item>
@@ -88,6 +87,5 @@
         <item>UPIS</item>
         <item>UTE</item>
         <item>VISITAS PROFESIONALES</item>
-        <item>OTRO</item>
     </string-array>
 </resources>
