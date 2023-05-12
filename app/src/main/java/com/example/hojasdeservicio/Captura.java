@@ -160,7 +160,6 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
                     _servicio.setDispositivo(numDispositivo);
                 } else{
                     _servicio.setDispositivo(guardarDispositivo());
-                    return;
                 }
             } else{
                 _servicio.getDispositivo().setIdTipo(_itemSpinnerSeleccionado);
@@ -232,13 +231,12 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
 
     private int guardarDispositivo(){
         int numDispositivo = 0, numElemento = 0;
+        ContentValues cv = new ContentValues();
+        cv.put("marca", String.valueOf(_edtTMarca.getText()));
+        cv.put("modelo", String.valueOf(_edtTModelo.getText()));
+        cv.put("num_serie", String.valueOf(_edtTNoSerie.getText()));
         _db = _dbHelper.getWritableDatabase();
         if(_db != null){
-            ContentValues cv = new ContentValues();
-            cv.put("marca", String.valueOf(_edtTMarca.getText()));
-            cv.put("modelo", String.valueOf(_edtTModelo.getText()));
-            cv.put("num_serie", String.valueOf(_edtTNoSerie.getText()));
-
             numElemento = (int) _db.insert("inventario", null, cv);
             cv.clear();
             if(numElemento != -1){
@@ -588,6 +586,12 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
         _btnFinalizar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if(_chkBDispositivo.isChecked()) {
+                    if(String.valueOf(_edtTNoSerie.getText()).equalsIgnoreCase("")){
+                        Toast.makeText(Captura.this, "Complete el número de serie del dispositivo.", Toast.LENGTH_LONG).show();
+                        return;
+                    }
+                }
                 guardarCambios();
                 Intent intent = new Intent(getApplicationContext(), Firma.class);
                 intent.putExtra("numServicio", _numServicio);
@@ -600,6 +604,12 @@ public class Captura extends AppCompatActivity implements AdapterView.OnItemSele
         _btnGuardar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if(_chkBDispositivo.isChecked()) {
+                    if(String.valueOf(_edtTNoSerie.getText()).equalsIgnoreCase("")){
+                        Toast.makeText(Captura.this, "Complete el número de serie del dispositivo.", Toast.LENGTH_LONG).show();
+                        return;
+                    }
+                }
                 guardarCambios();
                 Intent intent = new Intent(getApplicationContext(), Captura.class);
                 intent.putExtra("numServicio", _servicio.getNumServicio());

@@ -88,14 +88,11 @@ public class AbrirServicio extends AppCompatActivity implements AdapterView.OnIt
         _btnCrear.setOnClickListener(view -> {
             int idLugar = 0;
             boolean bandera = !String.valueOf(_edtTPersona.getText()).equals("") && !String.valueOf(_edtTMDescripcion.getText()).equals("") && _itemSpinnerSeleccionado > 0;
-            Toast.makeText(this, "primeros campos " + bandera, Toast.LENGTH_SHORT).show();
             if(_edtTOtro.getVisibility() == View.VISIBLE){
                 bandera = bandera && !String.valueOf(_edtTOtro.getText()).equals("");
                 _lugarSeleccionado = String.valueOf(_edtTOtro.getText());
-                Toast.makeText(this, "segundos campos " + bandera, Toast.LENGTH_SHORT).show();
                 idLugar = insertDB("lugar", _lugarSeleccionado.toUpperCase(), "lugares");
                 bandera = bandera && idLugar != -1;
-                Toast.makeText(this, "terceros campos " + bandera, Toast.LENGTH_SHORT).show();
             } else{
                 idLugar = _itemSpinnerSeleccionado;
             }
