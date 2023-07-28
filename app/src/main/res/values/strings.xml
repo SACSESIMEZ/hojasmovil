@@ -25,4 +25,6 @@
     <string name="imgv_evidencia_1">Evidencia 1</string>
     <string name="imgv_evidencia_3">Evidencia 3</string>
     <string name="btn_tomar_foto">Tomar foto</string>
+    <string name="string_btn_comenzar">COMENZAR</string>
+    <string name="string_edtnumber_id_de_usuario_asignado">ID de Usuario Asignado</string>
 </resources>

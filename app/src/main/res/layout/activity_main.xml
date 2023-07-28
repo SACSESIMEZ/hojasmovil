@@ -4,10 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context="com.movil.hojasdeservicio.MainActivity">
 
     <TextView
-        android:id="@+id/TxtVListaS"
+        android:id="@+id/TxtVListaServicios"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/title_lista_servicios"
@@ -22,21 +22,23 @@
         app:layout_constraintVertical_bias="0.112" />
 
     <ScrollView
-        android:id="@+id/SclVListaS"
+        android:id="@+id/SclVListaServicios"
         android:layout_width="303dp"
         android:layout_height="473dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.494"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/TxtVListaS"
+        app:layout_constraintTop_toBottomOf="@+id/TxtVListaServicios"
         app:layout_constraintVertical_bias="0.149">
 
         <HorizontalScrollView
+            android:id="@+id/HSclVListaServicios"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
+
             <TableLayout
-                android:id="@+id/TbLListaS"
+                android:id="@+id/TbLListaServicios"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
         </HorizontalScrollView>
@@ -51,6 +53,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/SclVListaS" />
+        app:layout_constraintTop_toBottomOf="@+id/SclVListaServicios" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

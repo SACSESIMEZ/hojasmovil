@@ -1,4 +1,4 @@
-package com.example.hojasdeservicio;
+package com.movil.hojasdeservicio;
 
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
@@ -17,12 +17,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager.OnActivityResultListener;
-import android.provider.MediaStore;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -37,7 +34,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.hojasdeservicio.databinding.ActivityCapturaBinding;
+import com.movil.hojasdeservicio.databinding.ActivityCapturaBinding;
+import com.movil.models.Servicio;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;

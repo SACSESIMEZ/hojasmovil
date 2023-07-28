@@ -3,11 +3,11 @@ plugins {
 }
 
 android {
-    namespace 'com.example.hojasdeservicio'
+    namespace 'com.movil.hojasdeservicio'
     compileSdk 32
 
     defaultConfig {
-        applicationId "com.example.hojasdeservicio"
+        applicationId 'com.movil.hojasdeservicio'
         minSdk 21
         targetSdk 32
         versionCode 1
@@ -33,6 +33,7 @@ android {
 
 dependencies {
 
+    implementation 'com.google.code.gson:gson:2.10.1'
     implementation 'androidx.appcompat:appcompat:1.5.1'
     implementation 'com.google.android.material:material:1.7.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'

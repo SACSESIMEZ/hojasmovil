@@ -6,34 +6,36 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/bienvenido"
-    tools:context=".Bienvenida">
-
-    <EditText
-        android:id="@+id/EdtTNombre"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@drawable/edit_text_rounded"
-        android:ems="10"
-        android:inputType="textPersonName"
-        android:padding="5dp"
-        android:textColor="#000000"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    tools:context="com.movil.hojasdeservicio.Bienvenida">
 
     <Button
         android:id="@+id/BtnComenzar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="20dp"
-        android:text="COMENZAR"
+        android:text="@string/string_btn_comenzar"
         android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/EdtTNombre"
-        app:layout_constraintVertical_bias="0.653" />
+        app:layout_constraintTop_toBottomOf="@+id/EdtTIdUsuario" />
+
+    <EditText
+        android:id="@+id/EdtTIdUsuario"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:autofillHints=""
+        android:background="@drawable/edit_text_rounded"
+        android:ems="10"
+        android:hint="@string/string_edtnumber_id_de_usuario_asignado"
+        android:inputType="number"
+        android:minHeight="48dp"
+        android:padding="5dp"
+        android:textColorHint="#564E4E"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

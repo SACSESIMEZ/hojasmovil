@@ -5,7 +5,7 @@
     android:id="@+id/CnsLContenedor"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Captura">
+    tools:context="com.movil.hojasdeservicio.Captura">
 
     <ScrollView
         android:layout_width="match_parent"

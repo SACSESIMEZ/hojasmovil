@@ -1,4 +1,4 @@
-package com.example.hojasdeservicio;
+package com.movil.hojasdeservicio;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 public class AbrirServicio extends AppCompatActivity implements AdapterView.OnItemSelectedListener, Serializable {
 
