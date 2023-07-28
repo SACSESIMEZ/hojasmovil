@@ -24,14 +24,17 @@ import com.google.gson.Gson;
 import com.movil.models.Json;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements Serializable {
 
     private int idUsuario;
-    private String json;
+    private String jsonString;
     private Button btnCrearServicio;
     private TableLayout tblLListaServicios;
     private SQLiteDatabase _db;
@@ -52,25 +55,44 @@ public class MainActivity extends AppCompatActivity implements Serializable {
         });
     }
 
+    public List leerFlujoJson(InputStream in) throws IOException {
+        Gson gson = new Gson();
+        JsonReader reader = new JsonReader(new InputStreamReader(in, "UTF-8"));
+        List animales = new ArrayList();
+
+        reader.beginArray();
+
+        while (reader.hasNext()) {
+            Json animal = gson.fromJson(reader, Json.class);
+            animales.add(animal);
+        }
+
+
+        reader.endArray();
+        reader.close();
+        return animales;
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
         try {
             tblLListaServicios.removeAllViews();
             SharedPreferences sp = getSharedPreferences("HojasServicio", Context.MODE_PRIVATE);
-            json = sp.getString("JSON", "");
+            jsonString = sp.getString("JSON", "");
 
-            if(json == null || json.equalsIgnoreCase("")){
+            if(jsonString == null || jsonString.equalsIgnoreCase("")){
                 Intent intent = new Intent(this, Bienvenida.class);
                 startActivity(intent);
                 finish();
             }
 
-            InputStream inputStream = new ByteArrayInputStream(json.getBytes());
+            InputStream inputStream = new ByteArrayInputStream(jsonString.getBytes());
             Gson gson = new Gson();
             JsonReader reader = new JsonReader(new InputStreamReader(inputStream, "UTF-8"));
-            reader.beginArray();
+            reader.beginObject();
             reader.hasNext();
+
             Json json = gson.fromJson(reader, Json.class);
 
 
